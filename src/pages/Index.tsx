@@ -26,6 +26,9 @@ export default function Index() {
   const [editOpen, setEditOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [importProgress, setImportProgress] = useState<string>("");
+  const [locations, setLocations] = useState<CompanyLocation[]>([]);
+  const [addLocationCompany, setAddLocationCompany] = useState<Company | null>(null);
+  const [addLocationOpen, setAddLocationOpen] = useState(false);
 
   // Load companies from database on mount
   useEffect(() => {
