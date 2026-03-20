@@ -25,15 +25,15 @@ export function useCategories() {
     const { error } = await supabase.from("categories").insert({ name: trimmed });
     if (error) {
       if (error.code === "23505") {
-        toast.error("Branchen findes allerede.");
+        toast.error("Bransjen finnes allerede.");
       } else {
-        toast.error("Kunne ikke oprette branchen.");
+        toast.error("Kunne ikke opprette bransjen.");
       }
       return false;
     }
 
     setCategories((prev) => [...prev, trimmed].sort());
-    toast.success(`Branche "${trimmed}" oprettet!`);
+    toast.success(`Bransje "${trimmed}" opprettet!`);
     return true;
   }, []);
 

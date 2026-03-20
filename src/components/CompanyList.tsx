@@ -20,7 +20,7 @@ export default function CompanyList({ companies, filter, onSelect, onRemove, onE
   return (
     <div className="space-y-1">
       <p className="text-xs font-semibold uppercase tracking-wider text-[hsl(210,20%,55%)]">
-        {filtered.length} virksomheder
+        {filtered.length} bedrifter
       </p>
       <div className="space-y-1">
         {filtered.map(c => (

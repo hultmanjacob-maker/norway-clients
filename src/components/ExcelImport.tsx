@@ -48,11 +48,11 @@ export default function ExcelImport({ onImport, loading }: ExcelImportProps) {
         setDetectedCols(Object.keys(json[0]));
       }
       const rows: ExcelRow[] = json.map(row => ({
-        name: findCol(row, "Virksomhedsnavn", "Företagsnamn", "Company Name", "Company", "Navn", "Virksomhed", "Name", "Firma"),
-        address: findCol(row, "Adresse", "Adress", "Address", "Street", "Gatuadress", "Besøgsadresse", "Vej"),
+        name: findCol(row, "Bedriftsnavn", "Virksomhedsnavn", "Företagsnamn", "Company Name", "Company", "Navn", "Name", "Firma"),
+        address: findCol(row, "Adresse", "Adress", "Address", "Street", "Gatuadress", "Besøksadresse", "Vej"),
         postalCode: findCol(row, "Postnummer", "Postal code", "Postkod", "Zip", "Zip code", "Postcode", "Post nr"),
-        category: findCol(row, "Branche", "Bransch", "Category", "Industry", "Kategori", "Typ", "Virksomhedstype"),
-        url: findCol(row, "URL", "Hjemmeside", "Webbplats", "Website", "Hemsida", "Webb", "Web"),
+        category: findCol(row, "Bransje", "Branche", "Bransch", "Category", "Industry", "Kategori", "Typ", "Bedriftstype"),
+        url: findCol(row, "URL", "Nettside", "Hjemmeside", "Webbplats", "Website", "Hemsida", "Webb", "Web"),
       })).filter(r => r.name);
       setPreview(rows);
     };
@@ -74,18 +74,18 @@ export default function ExcelImport({ onImport, loading }: ExcelImportProps) {
     <div className="space-y-3">
       <div className="flex items-center gap-2 font-semibold text-foreground">
         <FileSpreadsheet className="h-4 w-4" />
-        Importér fra Excel
+        Importer fra Excel
       </div>
       <p className="text-xs text-muted-foreground">
-        Kolonner: Virksomhedsnavn, Adresse, Postnummer, Branche, URL
+        Kolonner: Bedriftsnavn, Adresse, Postnummer, Bransje, URL
       </p>
       <input ref={ref} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFile} />
       <Button variant="outline" className="w-full" onClick={() => ref.current?.click()} disabled={loading}>
-        <Upload className="h-4 w-4 mr-2" /> Vælg fil
+        <Upload className="h-4 w-4 mr-2" /> Velg fil
       </Button>
       {preview && (
         <div className="space-y-2">
-          <p className="text-sm font-medium">{preview.length} virksomheder fundet</p>
+          <p className="text-sm font-medium">{preview.length} bedrifter funnet</p>
           {detectedCols.length > 0 && (
             <p className="text-xs text-muted-foreground">
               Kolonner i filen: {detectedCols.join(", ")}
@@ -93,12 +93,12 @@ export default function ExcelImport({ onImport, loading }: ExcelImportProps) {
           )}
           {!hasAddress && !hasPostalCode && (
             <p className="text-xs text-destructive font-medium">
-              ⚠ Hverken adresse eller postnummer fundet. Geokodning vil sandsynligvis fejle.
+              ⚠ Verken adresse eller postnummer funnet. Geokoding vil sannsynligvis feile.
             </p>
           )}
           {!hasAddress && hasPostalCode && (
             <p className="text-xs text-yellow-600 font-medium">
-              ⚠ Ingen adresse fundet — geokoder kun med postnummer.
+              ⚠ Ingen adresse funnet — geokoder kun med postnummer.
             </p>
           )}
           <div className="max-h-32 overflow-y-auto text-xs space-y-1 rounded border border-border p-2">
@@ -107,13 +107,13 @@ export default function ExcelImport({ onImport, loading }: ExcelImportProps) {
                 {r.name} {r.postalCode && `— ${r.postalCode}`} {r.address && `— ${r.address}`}
               </div>
             ))}
-            {preview.length > 10 && <div className="text-muted-foreground">...og {preview.length - 10} mere</div>}
+            {preview.length > 10 && <div className="text-muted-foreground">...og {preview.length - 10} til</div>}
           </div>
           <div className="flex gap-2">
             <Button onClick={handleImport} disabled={loading} className="flex-1">
-              {loading ? "Importerer..." : `Importér ${preview.length} stk`}
+              {loading ? "Importerer..." : `Importer ${preview.length} stk`}
             </Button>
-            <Button variant="outline" onClick={() => { setPreview(null); setDetectedCols([]); }}>Annuller</Button>
+            <Button variant="outline" onClick={() => { setPreview(null); setDetectedCols([]); }}>Avbryt</Button>
           </div>
         </div>
       )}

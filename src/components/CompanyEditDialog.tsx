@@ -48,11 +48,11 @@ export default function CompanyEditDialog({ company, open, onOpenChange, onSave,
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="z-[9999]">
         <DialogHeader>
-          <DialogTitle>Rediger virksomhed</DialogTitle>
-          <DialogDescription>Rediger virksomhedens oplysninger nedenfor.</DialogDescription>
+          <DialogTitle>Rediger bedrift</DialogTitle>
+          <DialogDescription>Endre bedriftens opplysninger nedenfor.</DialogDescription>
         </DialogHeader>
         <div className="space-y-3 pt-2">
-          <Input placeholder="Virksomhedsnavn *" value={name} onChange={e => setName(e.target.value)} />
+          <Input placeholder="Bedriftsnavn *" value={name} onChange={e => setName(e.target.value)} />
           <Input placeholder="Adresse" value={address} onChange={e => setAddress(e.target.value)} />
           <Input placeholder="Postnummer *" value={postalCode} onChange={e => setPostalCode(e.target.value)} />
           <CategorySelect
@@ -61,9 +61,9 @@ export default function CompanyEditDialog({ company, open, onOpenChange, onSave,
             categories={categories}
             onAddCategory={onAddCategory}
           />
-          <Input placeholder="Hjemmeside (https://...)" value={url} onChange={e => setUrl(e.target.value)} />
+          <Input placeholder="Nettside (https://...)" value={url} onChange={e => setUrl(e.target.value)} />
           <Button onClick={handleSubmit} disabled={loading || !name.trim() || !postalCode.trim()} className="w-full">
-            {loading ? "Gemmer..." : "Gem ændringer"}
+            {loading ? "Lagrer..." : "Lagre endringer"}
           </Button>
         </div>
       </DialogContent>

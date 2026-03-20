@@ -21,10 +21,10 @@ export default function MapView({ companies, selectedCompany }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
 
-  // Initialize map
+  // Initialize map – centered on Norway
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
-    const map = L.map(containerRef.current).setView([56.0, 10.5], 7);
+    const map = L.map(containerRef.current).setView([62.0, 10.0], 5);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);

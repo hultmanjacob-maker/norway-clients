@@ -32,15 +32,15 @@ export default function CompanyForm({ onAdd, loading, categories, onAddCategory 
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full gap-2">
           <Plus className="h-4 w-4" />
-          Ny virksomhed
+          Ny bedrift
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Tilføj virksomhed</DialogTitle>
+          <DialogTitle>Legg til bedrift</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 pt-2">
-          <Input placeholder="Virksomhedsnavn *" value={name} onChange={e => setName(e.target.value)} />
+          <Input placeholder="Bedriftsnavn *" value={name} onChange={e => setName(e.target.value)} />
           <Input placeholder="Adresse" value={address} onChange={e => setAddress(e.target.value)} />
           <Input placeholder="Postnummer *" value={postalCode} onChange={e => setPostalCode(e.target.value)} />
           <CategorySelect
@@ -49,9 +49,9 @@ export default function CompanyForm({ onAdd, loading, categories, onAddCategory 
             categories={categories}
             onAddCategory={onAddCategory}
           />
-          <Input placeholder="Hjemmeside (https://...)" value={url} onChange={e => setUrl(e.target.value)} />
+          <Input placeholder="Nettside (https://...)" value={url} onChange={e => setUrl(e.target.value)} />
           <Button onClick={handleSubmit} disabled={loading || !name.trim() || !postalCode.trim()} className="w-full">
-            {loading ? "Tilføjer..." : "Tilføj"}
+            {loading ? "Legger til..." : "Legg til"}
           </Button>
         </div>
       </DialogContent>
