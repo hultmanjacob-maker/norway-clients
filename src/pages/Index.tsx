@@ -61,6 +61,26 @@ export default function Index() {
     };
 
     loadCompanies();
+
+    const loadLocations = async () => {
+      const { data, error } = await supabase
+        .from("company_locations")
+        .select("*");
+      if (!error && data) {
+        setLocations(
+          data.map((row) => ({
+            id: row.id,
+            companyId: row.company_id,
+            address: row.address,
+            postalCode: row.postal_code,
+            city: row.city,
+            lat: row.lat,
+            lng: row.lng,
+          }))
+        );
+      }
+    };
+    loadLocations();
   }, []);
 
   const cities = useMemo(() => {
