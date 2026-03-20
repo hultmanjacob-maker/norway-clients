@@ -71,6 +71,47 @@ export type Database = {
         }
         Relationships: []
       }
+      company_locations: {
+        Row: {
+          address: string
+          city: string
+          company_id: string
+          created_at: string
+          id: string
+          lat: number
+          lng: number
+          postal_code: string
+        }
+        Insert: {
+          address?: string
+          city?: string
+          company_id: string
+          created_at?: string
+          id?: string
+          lat: number
+          lng: number
+          postal_code?: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          lat?: number
+          lng?: number
+          postal_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_locations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

@@ -2,13 +2,14 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Company } from "@/types/company";
+import { Company, CompanyLocation } from "@/types/company";
 import { geocodeAddress } from "@/hooks/useGeocode";
 import { useCategories } from "@/hooks/useCategories";
 import CompanyForm from "@/components/CompanyForm";
 import CompanyEditDialog from "@/components/CompanyEditDialog";
 import ExcelImport from "@/components/ExcelImport";
 import CompanyList from "@/components/CompanyList";
+import AddLocationDialog from "@/components/AddLocationDialog";
 import MapView from "@/components/MapView";
 import { Search, MapPin } from "lucide-react";
 import { toast } from "sonner";
@@ -25,6 +26,9 @@ export default function Index() {
   const [editOpen, setEditOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [importProgress, setImportProgress] = useState<string>("");
+  const [locations, setLocations] = useState<CompanyLocation[]>([]);
+  const [addLocationCompany, setAddLocationCompany] = useState<Company | null>(null);
+  const [addLocationOpen, setAddLocationOpen] = useState(false);
 
   // Load companies from database on mount
   useEffect(() => {
@@ -57,6 +61,26 @@ export default function Index() {
     };
 
     loadCompanies();
+
+    const loadLocations = async () => {
+      const { data, error } = await supabase
+        .from("company_locations")
+        .select("*");
+      if (!error && data) {
+        setLocations(
+          data.map((row) => ({
+            id: row.id,
+            companyId: row.company_id,
+            address: row.address,
+            postalCode: row.postal_code,
+            city: row.city,
+            lat: row.lat,
+            lng: row.lng,
+          }))
+        );
+      }
+    };
+    loadLocations();
   }, []);
 
   const cities = useMemo(() => {
@@ -251,6 +275,52 @@ export default function Index() {
     setEditOpen(true);
   }, []);
 
+  const handleAddLocation = useCallback((company: Company) => {
+    setAddLocationCompany(company);
+    setAddLocationOpen(true);
+  }, []);
+
+  const saveLocation = useCallback(async (companyId: string, data: { address: string; postalCode: string; city: string }) => {
+    setLoading(true);
+    const coords = await geocodeAddress(data.address, data.postalCode);
+    if (!coords) {
+      toast.error("Kunne ikke finne koordinater for adressen.");
+      setLoading(false);
+      return;
+    }
+
+    const { data: inserted, error } = await supabase
+      .from("company_locations")
+      .insert({
+        company_id: companyId,
+        address: data.address,
+        postal_code: data.postalCode,
+        city: data.city || coords.city,
+        lat: coords.lat,
+        lng: coords.lng,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast.error("Kunne ikke lagre lokasjonen.");
+      setLoading(false);
+      return;
+    }
+
+    setLocations(prev => [...prev, {
+      id: inserted.id,
+      companyId: inserted.company_id,
+      address: inserted.address,
+      postalCode: inserted.postal_code,
+      city: inserted.city,
+      lat: inserted.lat,
+      lng: inserted.lng,
+    }]);
+    toast.success("Lokasjon lagt til!");
+    setLoading(false);
+  }, []);
+
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       <div className="w-80 shrink-0 border-r border-[hsl(220,40%,18%)] bg-[hsl(220,40%,13%)] flex flex-col overflow-hidden text-[hsl(210,30%,90%)]">
@@ -292,12 +362,12 @@ export default function Index() {
             </p>
           )}
           <Separator className="bg-[hsl(220,35%,22%)]" />
-          <CompanyList companies={filteredCompanies} filter="" onSelect={setSelected} onRemove={removeCompany} onEdit={handleEdit} />
+          <CompanyList companies={filteredCompanies} filter="" onSelect={setSelected} onRemove={removeCompany} onEdit={handleEdit} onAddLocation={handleAddLocation} />
         </div>
       </div>
 
       <div className="flex-1 relative">
-        <MapView companies={filteredCompanies} selectedCompany={selected} />
+        <MapView companies={filteredCompanies} locations={locations} selectedCompany={selected} />
       </div>
 
       <CompanyEditDialog
@@ -308,6 +378,14 @@ export default function Index() {
         loading={loading}
         categories={categories}
         onAddCategory={addCategory}
+      />
+
+      <AddLocationDialog
+        company={addLocationCompany}
+        open={addLocationOpen}
+        onOpenChange={setAddLocationOpen}
+        onSave={saveLocation}
+        loading={loading}
       />
     </div>
   );

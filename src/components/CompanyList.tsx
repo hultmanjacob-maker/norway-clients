@@ -1,6 +1,6 @@
 import { Company } from "@/types/company";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Trash2, MapPin, Pencil } from "lucide-react";
+import { ExternalLink, Trash2, MapPin, Pencil, Plus } from "lucide-react";
 
 interface CompanyListProps {
   companies: Company[];
@@ -8,9 +8,10 @@ interface CompanyListProps {
   onSelect: (company: Company) => void;
   onRemove: (id: string) => void;
   onEdit: (company: Company) => void;
+  onAddLocation: (company: Company) => void;
 }
 
-export default function CompanyList({ companies, filter, onSelect, onRemove, onEdit }: CompanyListProps) {
+export default function CompanyList({ companies, filter, onSelect, onRemove, onEdit, onAddLocation }: CompanyListProps) {
   const filtered = companies.filter(c => {
     if (!filter) return true;
     const q = filter.toLowerCase();
@@ -38,8 +39,16 @@ export default function CompanyList({ companies, filter, onSelect, onRemove, onE
                   </a>
                 )}
                 <button
+                  onClick={e => { e.stopPropagation(); onAddLocation(c); }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Legg til lokasjon"
+                >
+                  <Plus className="h-3 w-3 text-[hsl(210,20%,55%)] hover:text-[hsl(210,60%,65%)]" />
+                </button>
+                <button
                   onClick={e => { e.stopPropagation(); onEdit(c); }}
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Rediger bedrift"
                 >
                   <Pencil className="h-3 w-3 text-[hsl(210,20%,55%)] hover:text-[hsl(210,60%,65%)]" />
                 </button>
