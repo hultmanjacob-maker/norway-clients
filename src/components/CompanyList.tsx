@@ -8,6 +8,7 @@ interface CompanyListProps {
   onSelect: (company: Company) => void;
   onRemove: (id: string) => void;
   onEdit: (company: Company) => void;
+  onAddLocation: (company: Company) => void;
 }
 
 export default function CompanyList({ companies, filter, onSelect, onRemove, onEdit, onAddLocation }: CompanyListProps) {
