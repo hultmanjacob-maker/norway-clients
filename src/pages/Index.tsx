@@ -362,12 +362,12 @@ export default function Index() {
             </p>
           )}
           <Separator className="bg-[hsl(220,35%,22%)]" />
-          <CompanyList companies={filteredCompanies} filter="" onSelect={setSelected} onRemove={removeCompany} onEdit={handleEdit} />
+          <CompanyList companies={filteredCompanies} filter="" onSelect={setSelected} onRemove={removeCompany} onEdit={handleEdit} onAddLocation={handleAddLocation} />
         </div>
       </div>
 
       <div className="flex-1 relative">
-        <MapView companies={filteredCompanies} selectedCompany={selected} />
+        <MapView companies={filteredCompanies} locations={locations} selectedCompany={selected} />
       </div>
 
       <CompanyEditDialog
@@ -378,6 +378,14 @@ export default function Index() {
         loading={loading}
         categories={categories}
         onAddCategory={addCategory}
+      />
+
+      <AddLocationDialog
+        company={addLocationCompany}
+        open={addLocationOpen}
+        onOpenChange={setAddLocationOpen}
+        onSave={saveLocation}
+        loading={loading}
       />
     </div>
   );
