@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
-import { Company } from "@/types/company";
+import { Company, CompanyLocation } from "@/types/company";
 import "leaflet/dist/leaflet.css";
 
 // Fix default marker icon
