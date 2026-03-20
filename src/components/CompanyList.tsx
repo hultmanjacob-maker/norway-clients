@@ -10,7 +10,7 @@ interface CompanyListProps {
   onEdit: (company: Company) => void;
 }
 
-export default function CompanyList({ companies, filter, onSelect, onRemove, onEdit }: CompanyListProps) {
+export default function CompanyList({ companies, filter, onSelect, onRemove, onEdit, onAddLocation }: CompanyListProps) {
   const filtered = companies.filter(c => {
     if (!filter) return true;
     const q = filter.toLowerCase();
