@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Company } from "@/types/company";
+import { Company, CompanyLocation } from "@/types/company";
 import { geocodeAddress } from "@/hooks/useGeocode";
 import { useCategories } from "@/hooks/useCategories";
 import CompanyForm from "@/components/CompanyForm";
