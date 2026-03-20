@@ -1,6 +1,6 @@
 import { Company } from "@/types/company";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Trash2, MapPin, Pencil } from "lucide-react";
+import { ExternalLink, Trash2, MapPin, Pencil, Plus } from "lucide-react";
 
 interface CompanyListProps {
   companies: Company[];
