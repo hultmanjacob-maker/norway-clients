@@ -13,10 +13,11 @@ L.Icon.Default.mergeOptions({
 
 interface MapViewProps {
   companies: Company[];
+  locations: CompanyLocation[];
   selectedCompany: Company | null;
 }
 
-export default function MapView({ companies, selectedCompany }: MapViewProps) {
+export default function MapView({ companies, locations, selectedCompany }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
