@@ -275,6 +275,52 @@ export default function Index() {
     setEditOpen(true);
   }, []);
 
+  const handleAddLocation = useCallback((company: Company) => {
+    setAddLocationCompany(company);
+    setAddLocationOpen(true);
+  }, []);
+
+  const saveLocation = useCallback(async (companyId: string, data: { address: string; postalCode: string; city: string }) => {
+    setLoading(true);
+    const coords = await geocodeAddress(data.address, data.postalCode);
+    if (!coords) {
+      toast.error("Kunne ikke finne koordinater for adressen.");
+      setLoading(false);
+      return;
+    }
+
+    const { data: inserted, error } = await supabase
+      .from("company_locations")
+      .insert({
+        company_id: companyId,
+        address: data.address,
+        postal_code: data.postalCode,
+        city: data.city || coords.city,
+        lat: coords.lat,
+        lng: coords.lng,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      toast.error("Kunne ikke lagre lokasjonen.");
+      setLoading(false);
+      return;
+    }
+
+    setLocations(prev => [...prev, {
+      id: inserted.id,
+      companyId: inserted.company_id,
+      address: inserted.address,
+      postalCode: inserted.postal_code,
+      city: inserted.city,
+      lat: inserted.lat,
+      lng: inserted.lng,
+    }]);
+    toast.success("Lokasjon lagt til!");
+    setLoading(false);
+  }, []);
+
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       <div className="w-80 shrink-0 border-r border-[hsl(220,40%,18%)] bg-[hsl(220,40%,13%)] flex flex-col overflow-hidden text-[hsl(210,30%,90%)]">
