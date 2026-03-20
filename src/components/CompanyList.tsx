@@ -38,8 +38,16 @@ export default function CompanyList({ companies, filter, onSelect, onRemove, onE
                   </a>
                 )}
                 <button
+                  onClick={e => { e.stopPropagation(); onAddLocation(c); }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Legg til lokasjon"
+                >
+                  <Plus className="h-3 w-3 text-[hsl(210,20%,55%)] hover:text-[hsl(210,60%,65%)]" />
+                </button>
+                <button
                   onClick={e => { e.stopPropagation(); onEdit(c); }}
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Rediger bedrift"
                 >
                   <Pencil className="h-3 w-3 text-[hsl(210,20%,55%)] hover:text-[hsl(210,60%,65%)]" />
                 </button>
