@@ -1,8 +1,8 @@
 type GeocodeResult = { lat: number; lng: number; city: string };
 
-const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=dk&addressdetails=1";
+const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=no&addressdetails=1";
 const HEADERS = {
-  "User-Agent": "VirksomhedskortDanmark/1.0",
+  "User-Agent": "BedriftskartNorge/1.0",
   Accept: "application/json",
 };
 const REQUEST_INTERVAL_MS = 1200;
@@ -102,11 +102,11 @@ export async function geocodeAddress(address: string, postalCode: string): Promi
 
   let query = "";
   if (cleanPostalCode && cleanAddress) {
-    query = `${cleanAddress}, ${cleanPostalCode}, Denmark`;
+    query = `${cleanAddress}, ${cleanPostalCode}, Norway`;
   } else if (cleanPostalCode) {
-    query = `${cleanPostalCode}, Denmark`;
+    query = `${cleanPostalCode}, Norway`;
   } else if (cleanAddress) {
-    query = `${cleanAddress}, Denmark`;
+    query = `${cleanAddress}, Norway`;
   } else {
     return null;
   }
@@ -117,7 +117,7 @@ export async function geocodeAddress(address: string, postalCode: string): Promi
   }
 
   if (cleanPostalCode && cleanAddress) {
-    return nominatimSearch(`${cleanPostalCode}, Denmark`);
+    return nominatimSearch(`${cleanPostalCode}, Norway`);
   }
 
   return null;

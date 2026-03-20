@@ -77,7 +77,7 @@ export default function Index() {
     setLoading(true);
     const coords = await geocodeAddress(data.address, data.postalCode);
     if (!coords) {
-      toast.error(`Kunne ikke finde koordinater for "${data.name}". Kontrollér adresse/postnummer.`);
+      toast.error(`Kunne ikke finne koordinater for "${data.name}". Sjekk adresse/postnummer.`);
       setLoading(false);
       return;
     }
@@ -98,7 +98,7 @@ export default function Index() {
       .single();
 
     if (error) {
-      toast.error("Kunne ikke gemme virksomheden.");
+      toast.error("Kunne ikke lagre bedriften.");
       console.error(error);
       setLoading(false);
       return;
@@ -117,7 +117,7 @@ export default function Index() {
     };
     setCompanies(prev => [company, ...prev]);
     setSelected(company);
-    toast.success(`${data.name} tilføjet!`);
+    toast.success(`${data.name} lagt til!`);
     setLoading(false);
   }, []);
 
@@ -178,14 +178,14 @@ export default function Index() {
         }
 
         if (consecutiveFailures > 0 && consecutiveFailures % 8 === 0 && i < rows.length - 1) {
-          setImportProgress(`Pauser kort pga. geokodningsgrænse (${i + 1} af ${rows.length})...`);
+          setImportProgress(`Pauser kort pga. geokodingsgrense (${i + 1} av ${rows.length})...`);
           await new Promise(r => setTimeout(r, 8000));
         }
       }
 
-      toast.success(`${added} af ${rows.length} virksomheder importeret!`);
+      toast.success(`${added} av ${rows.length} bedrifter importert!`);
       if (failed > 0) {
-        toast.warning(`${failed} virksomheder kunne ikke geokodes.`);
+        toast.warning(`${failed} bedrifter kunne ikke geokodes.`);
       }
     } finally {
       setImportProgress("");
@@ -196,7 +196,7 @@ export default function Index() {
   const removeCompany = useCallback(async (id: string) => {
     const { error } = await supabase.from("companies").delete().eq("id", id);
     if (error) {
-      toast.error("Kunne ikke slette virksomheden.");
+      toast.error("Kunne ikke slette bedriften.");
       return;
     }
     setCompanies(prev => prev.filter(c => c.id !== id));
@@ -233,7 +233,7 @@ export default function Index() {
       .eq("id", company.id);
 
     if (error) {
-      toast.error("Kunne ikke opdatere virksomheden.");
+      toast.error("Kunne ikke oppdatere bedriften.");
       setLoading(false);
       return;
     }
@@ -242,7 +242,7 @@ export default function Index() {
     if (selected?.id === company.id) {
       setSelected(prev => prev ? { ...prev, ...updates, lat, lng, city } : null);
     }
-    toast.success("Virksomheden opdateret!");
+    toast.success("Bedriften oppdatert!");
     setLoading(false);
   }, [selected]);
 
@@ -255,15 +255,15 @@ export default function Index() {
     <div className="flex h-screen w-screen overflow-hidden">
       <div className="w-80 shrink-0 border-r border-[hsl(220,40%,18%)] bg-[hsl(220,40%,13%)] flex flex-col overflow-hidden text-[hsl(210,30%,90%)]">
         <div className="flex items-center gap-3 px-4 py-3 border-b border-[hsl(220,40%,18%)]">
-          <img src={logo} alt="Client Map Sweden" className="h-8 w-8 rounded" />
-          <h1 className="font-bold text-white text-sm tracking-wide">Client Map Denmark</h1>
+          <img src={logo} alt="Client Map Norway" className="h-8 w-8 rounded" />
+          <h1 className="font-bold text-white text-sm tracking-wide">Client Map Norway</h1>
         </div>
 
         <div className="px-3 py-2 space-y-2">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)]" />
             <Input
-              placeholder="Søg by, postnummer, virksomhed..."
+              placeholder="Søk by, postnummer, bedrift..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
@@ -271,7 +271,7 @@ export default function Index() {
           </div>
           <Select value={cityFilter} onValueChange={setCityFilter}>
             <SelectTrigger className="bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)]">
-              <SelectValue placeholder="Filtrera på stad" />
+              <SelectValue placeholder="Filtrer på by" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Alle byer</SelectItem>

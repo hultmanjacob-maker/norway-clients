@@ -35,7 +35,7 @@ export default function CategorySelect({ value, onValueChange, categories, onAdd
     return (
       <div className="flex gap-1.5">
         <Input
-          placeholder="Ny branche..."
+          placeholder="Ny bransje..."
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
@@ -63,16 +63,16 @@ export default function CategorySelect({ value, onValueChange, categories, onAdd
             className="flex-1 justify-between font-normal"
           >
             <span className={cn("truncate", !value && "text-muted-foreground")}>
-              {value || "Vælg branche"}
+              {value || "Velg bransje"}
             </span>
             <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[--radix-popover-trigger-width] p-0 z-[10000]" align="start">
           <Command>
-            <CommandInput placeholder="Søg branche..." />
+            <CommandInput placeholder="Søk bransje..." />
             <CommandList>
-              <CommandEmpty>Ingen branche fundet.</CommandEmpty>
+              <CommandEmpty>Ingen bransje funnet.</CommandEmpty>
               <CommandGroup>
                 {categories.map((c) => (
                   <CommandItem
@@ -92,7 +92,7 @@ export default function CategorySelect({ value, onValueChange, categories, onAdd
           </Command>
         </PopoverContent>
       </Popover>
-      <Button size="icon" variant="outline" onClick={() => setAdding(true)} title="Opret ny branche">
+      <Button size="icon" variant="outline" onClick={() => setAdding(true)} title="Opprett ny bransje">
         <Plus className="h-4 w-4" />
       </Button>
     </div>
