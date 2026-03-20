@@ -9,6 +9,7 @@ import CompanyForm from "@/components/CompanyForm";
 import CompanyEditDialog from "@/components/CompanyEditDialog";
 import ExcelImport from "@/components/ExcelImport";
 import CompanyList from "@/components/CompanyList";
+import AddLocationDialog from "@/components/AddLocationDialog";
 import MapView from "@/components/MapView";
 import { Search, MapPin } from "lucide-react";
 import { toast } from "sonner";
