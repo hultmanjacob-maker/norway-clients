@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can update companies" ON public.companies FOR UPDATE TO public USING (true) WITH CHECK (true);
