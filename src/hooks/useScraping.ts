@@ -31,20 +31,30 @@ export function useScraping() {
   }, []);
 
   const scrapeCompanyUrl = useCallback(async (companyId: string, url: string) => {
-    if (!url) return;
+    if (!url) return { success: false, skipped: true, reason: "missing_url" };
 
     try {
       const { data, error } = await supabase.functions.invoke("firecrawl-scrape", {
         body: { url },
       });
 
-      if (error || !data?.success) {
-        console.error("Scrape failed:", error || data?.error);
-        return false;
+      if (error) {
+        console.error("Scrape failed:", error);
+        return { success: false, skipped: false, reason: error.message };
+      }
+
+      if (!data?.success) {
+        return {
+          success: false,
+          skipped: Boolean(data?.skipped),
+          reason: data?.error || "unknown_error",
+        };
       }
 
       const content = data.content || "";
-      if (!content) return false;
+      if (!content) {
+        return { success: false, skipped: true, reason: "empty_content" };
+      }
 
       const { data: inserted, error: insertError } = await supabase
         .from("scraped_content")
@@ -74,12 +84,17 @@ export function useScraping() {
             },
           ];
         });
-        return true;
+        return { success: true, skipped: false };
       }
-      return false;
+
+      return { success: false, skipped: false, reason: insertError?.message || "save_failed" };
     } catch (err) {
       console.error("Scrape error:", err);
-      return false;
+      return {
+        success: false,
+        skipped: false,
+        reason: err instanceof Error ? err.message : "unknown_error",
+      };
     }
   }, []);
 
