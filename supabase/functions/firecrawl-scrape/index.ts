@@ -51,6 +51,19 @@ Deno.serve(async (req) => {
 
     if (!response.ok) {
       console.error('Firecrawl API error:', data);
+
+      if (response.status === 408 || data?.code === 'SCRAPE_TIMEOUT') {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            timeout: true,
+            skipped: true,
+            error: data.error || 'Scrape timed out',
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       return new Response(
         JSON.stringify({ success: false, error: data.error || `Request failed with status ${response.status}` }),
         { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

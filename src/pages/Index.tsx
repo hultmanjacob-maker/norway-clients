@@ -155,10 +155,11 @@ export default function Index() {
     toast.success(`${data.name} lagt til!`);
     setLoading(false);
 
-    // Auto-scrape the company URL in background
     if (data.url) {
-      scrapeCompanyUrl(company.id, data.url).then(() => {
-        toast.success(`Nettside for ${data.name} er skannet!`);
+      scrapeCompanyUrl(company.id, data.url).then((result) => {
+        if (result.success) {
+          toast.success(`Nettside for ${data.name} er skannet!`);
+        }
       });
     }
   }, [scrapeCompanyUrl]);
