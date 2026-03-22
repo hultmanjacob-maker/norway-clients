@@ -109,10 +109,9 @@ export function useScraping() {
     for (let i = 0; i < toScrape.length; i++) {
       const c = toScrape[i];
       setScrapeProgress(`Skanner ${i + 1} av ${toScrape.length}...`);
-      const ok = await scrapeCompanyUrl(c.id, c.url);
-      if (ok) success++;
+      const result = await scrapeCompanyUrl(c.id, c.url);
+      if (result.success) success++;
       else failed++;
-      // Small delay to avoid rate limiting
       if (i < toScrape.length - 1) {
         await new Promise((r) => setTimeout(r, 1000));
       }
