@@ -153,7 +153,14 @@ export default function Index() {
     setSelected(company);
     toast.success(`${data.name} lagt til!`);
     setLoading(false);
-  }, []);
+
+    // Auto-scrape the company URL in background
+    if (data.url) {
+      scrapeCompanyUrl(company.id, data.url).then(() => {
+        toast.success(`Nettside for ${data.name} er skannet!`);
+      });
+    }
+  }, [scrapeCompanyUrl]);
 
   const importCompanies = useCallback(async (rows: { name: string; address: string; postalCode: string; category: string; url: string }[]) => {
     setLoading(true);
