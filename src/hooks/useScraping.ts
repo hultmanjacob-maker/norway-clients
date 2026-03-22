@@ -126,10 +126,12 @@ export function useScraping() {
   const searchContent = useCallback(
     (query: string): string[] => {
       if (!query.trim()) return [];
-      const q = query.toLowerCase();
+      const q = query.trim().toLowerCase();
+      // Use word boundary matching to avoid partial matches like "ford" in "affordable"
+      const regex = new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
       const matchingCompanyIds = new Set<string>();
       for (const item of scrapedContent) {
-        if (item.content.toLowerCase().includes(q)) {
+        if (regex.test(item.content)) {
           matchingCompanyIds.add(item.companyId);
         }
       }
