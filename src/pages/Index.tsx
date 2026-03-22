@@ -343,9 +343,27 @@ export default function Index() {
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       <div className="w-80 shrink-0 border-r border-[hsl(220,40%,18%)] bg-[hsl(220,40%,13%)] flex flex-col overflow-hidden text-[hsl(210,30%,90%)]">
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-[hsl(220,40%,18%)]">
-          <img src={logo} alt="Client Map Norway" className="h-8 w-8 rounded" />
-          <h1 className="font-bold text-white text-sm tracking-wide">Client Map Norway</h1>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[hsl(220,40%,18%)]">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="Client Map Norway" className="h-8 w-8 rounded" />
+            <h1 className="font-bold text-white text-sm tracking-wide">Client Map Norway</h1>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-[hsl(210,20%,55%)] hover:text-white"
+            disabled={scraping || companies.length === 0}
+            title={scraping ? scrapeProgress || "Skanner..." : `Skann alle nettsider (${scrapedContent.length}/${companies.length})`}
+            onClick={async () => {
+              const result = await scrapeAllCompanies(companies.map(c => ({ id: c.id, url: c.url })));
+              if (result) {
+                toast.success(`${result.success} nettsider skannet!`);
+                if (result.failed > 0) toast.warning(`${result.failed} kunne ikke skannes.`);
+              }
+            }}
+          >
+            <ScanSearch className={`h-4 w-4 ${scraping ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
 
         <div className="px-3 py-2 space-y-2">
