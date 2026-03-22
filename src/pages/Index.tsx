@@ -396,22 +396,6 @@ export default function Index() {
               className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
             />
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full gap-2 text-xs"
-            disabled={scraping || companies.length === 0}
-            onClick={async () => {
-              const result = await scrapeAllCompanies(companies.map(c => ({ id: c.id, url: c.url })));
-              if (result) {
-                toast.success(`${result.success} nettsider skannet!`);
-                if (result.failed > 0) toast.warning(`${result.failed} kunne ikke skannes.`);
-              }
-            }}
-          >
-            <ScanSearch className="h-3.5 w-3.5" />
-            {scraping ? scrapeProgress || "Skanner..." : `Skann alle nettsider (${scrapedContent.length}/${companies.length} skannet)`}
-          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
