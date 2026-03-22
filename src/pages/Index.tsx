@@ -372,7 +372,7 @@ export default function Index() {
           <div className="relative">
             <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)]" />
             <Input
-              placeholder="Søk i nettside-innhold (f.eks. elektriker, hyundai)..."
+              placeholder="Find reference (f.eks. elektriker, hyundai)..."
               value={contentSearch}
               onChange={e => setContentSearch(e.target.value)}
               className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
