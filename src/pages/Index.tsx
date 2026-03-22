@@ -92,14 +92,20 @@ export default function Index() {
     return Array.from(set).sort();
   }, [companies]);
 
+  const contentMatchIds = useMemo(() => {
+    return contentSearch ? searchContent(contentSearch) : [];
+  }, [contentSearch, searchContent]);
+
   const filteredCompanies = useMemo(() => {
     return companies.filter(c => {
       if (cityFilter !== "all" && c.city !== cityFilter) return false;
+      // If content search is active, only show matching companies
+      if (contentSearch && !contentMatchIds.includes(c.id)) return false;
       if (!search) return true;
       const q = search.toLowerCase();
       return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || (c.url && c.url.toLowerCase().includes(q));
     });
-  }, [companies, cityFilter, search]);
+  }, [companies, cityFilter, search, contentSearch, contentMatchIds]);
 
   const addCompany = useCallback(async (data: { name: string; address: string; postalCode: string; category: string; url: string }) => {
     setLoading(true);
