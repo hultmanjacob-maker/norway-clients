@@ -99,8 +99,9 @@ export function useScraping() {
   }, []);
 
   const scrapeAllCompanies = useCallback(async (companies: { id: string; url: string }[]) => {
-    const toScrape = companies.filter((c) => c.url);
-    if (toScrape.length === 0) return;
+    const alreadyScrapedIds = new Set(scrapedContent.map((s) => s.companyId));
+    const toScrape = companies.filter((c) => c.url && !alreadyScrapedIds.has(c.id));
+    if (toScrape.length === 0) return { success: 0, failed: 0, skipped: companies.length - toScrape.length };
 
     setScraping(true);
     let success = 0;
@@ -120,7 +121,7 @@ export function useScraping() {
     setScrapeProgress("");
     setScraping(false);
     return { success, failed };
-  }, [scrapeCompanyUrl]);
+  }, [scrapeCompanyUrl, scrapedContent]);
 
   const searchContent = useCallback(
     (query: string): string[] => {
