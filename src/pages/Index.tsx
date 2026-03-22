@@ -84,7 +84,8 @@ export default function Index() {
       }
     };
     loadLocations();
-  }, []);
+    loadScrapedContent();
+  }, [loadScrapedContent]);
 
   const cities = useMemo(() => {
     const set = new Set(companies.map(c => c.city).filter(Boolean));
