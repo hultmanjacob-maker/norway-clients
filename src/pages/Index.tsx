@@ -5,13 +5,14 @@ import { Separator } from "@/components/ui/separator";
 import { Company, CompanyLocation } from "@/types/company";
 import { geocodeAddress } from "@/hooks/useGeocode";
 import { useCategories } from "@/hooks/useCategories";
+import { useScraping } from "@/hooks/useScraping";
 import CompanyForm from "@/components/CompanyForm";
 import CompanyEditDialog from "@/components/CompanyEditDialog";
 import ExcelImport from "@/components/ExcelImport";
 import CompanyList from "@/components/CompanyList";
 import AddLocationDialog from "@/components/AddLocationDialog";
 import MapView from "@/components/MapView";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
@@ -29,6 +30,8 @@ export default function Index() {
   const [locations, setLocations] = useState<CompanyLocation[]>([]);
   const [addLocationCompany, setAddLocationCompany] = useState<Company | null>(null);
   const [addLocationOpen, setAddLocationOpen] = useState(false);
+  const [contentSearch, setContentSearch] = useState("");
+  const { scrapedContent, scraping, loadScrapedContent, scrapeCompanyUrl, searchContent } = useScraping();
 
   // Load companies from database on mount
   useEffect(() => {
@@ -81,21 +84,28 @@ export default function Index() {
       }
     };
     loadLocations();
-  }, []);
+    loadScrapedContent();
+  }, [loadScrapedContent]);
 
   const cities = useMemo(() => {
     const set = new Set(companies.map(c => c.city).filter(Boolean));
     return Array.from(set).sort();
   }, [companies]);
 
+  const contentMatchIds = useMemo(() => {
+    return contentSearch ? searchContent(contentSearch) : [];
+  }, [contentSearch, searchContent]);
+
   const filteredCompanies = useMemo(() => {
     return companies.filter(c => {
       if (cityFilter !== "all" && c.city !== cityFilter) return false;
+      // If content search is active, only show matching companies
+      if (contentSearch && !contentMatchIds.includes(c.id)) return false;
       if (!search) return true;
       const q = search.toLowerCase();
       return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || (c.url && c.url.toLowerCase().includes(q));
     });
-  }, [companies, cityFilter, search]);
+  }, [companies, cityFilter, search, contentSearch, contentMatchIds]);
 
   const addCompany = useCallback(async (data: { name: string; address: string; postalCode: string; category: string; url: string }) => {
     setLoading(true);
@@ -143,7 +153,14 @@ export default function Index() {
     setSelected(company);
     toast.success(`${data.name} lagt til!`);
     setLoading(false);
-  }, []);
+
+    // Auto-scrape the company URL in background
+    if (data.url) {
+      scrapeCompanyUrl(company.id, data.url).then(() => {
+        toast.success(`Nettside for ${data.name} er skannet!`);
+      });
+    }
+  }, [scrapeCompanyUrl]);
 
   const importCompanies = useCallback(async (rows: { name: string; address: string; postalCode: string; category: string; url: string }[]) => {
     setLoading(true);
@@ -350,6 +367,20 @@ export default function Index() {
               ))}
             </SelectContent>
           </Select>
+          <div className="relative">
+            <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)]" />
+            <Input
+              placeholder="Søk i nettside-innhold..."
+              value={contentSearch}
+              onChange={e => setContentSearch(e.target.value)}
+              className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
+            />
+            {scraping && (
+              <span className="absolute right-2.5 top-2.5 text-[10px] text-[hsl(210,20%,55%)] animate-pulse">
+                Skanner...
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 py-2 space-y-4">

@@ -112,6 +112,38 @@ export type Database = {
           },
         ]
       }
+      scraped_content: {
+        Row: {
+          company_id: string
+          content: string
+          id: string
+          scraped_at: string
+          url: string
+        }
+        Insert: {
+          company_id: string
+          content?: string
+          id?: string
+          scraped_at?: string
+          url?: string
+        }
+        Update: {
+          company_id?: string
+          content?: string
+          id?: string
+          scraped_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scraped_content_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
