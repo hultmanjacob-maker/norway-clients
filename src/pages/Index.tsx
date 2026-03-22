@@ -30,6 +30,8 @@ export default function Index() {
   const [locations, setLocations] = useState<CompanyLocation[]>([]);
   const [addLocationCompany, setAddLocationCompany] = useState<Company | null>(null);
   const [addLocationOpen, setAddLocationOpen] = useState(false);
+  const [contentSearch, setContentSearch] = useState("");
+  const { scrapedContent, scraping, loadScrapedContent, scrapeCompanyUrl, searchContent } = useScraping();
 
   // Load companies from database on mount
   useEffect(() => {
