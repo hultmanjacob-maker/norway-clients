@@ -12,7 +12,8 @@ import ExcelImport from "@/components/ExcelImport";
 import CompanyList from "@/components/CompanyList";
 import AddLocationDialog from "@/components/AddLocationDialog";
 import MapView from "@/components/MapView";
-import { Search, MapPin, Globe } from "lucide-react";
+import { Search, MapPin, Globe, ScanSearch } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/logo.png";
@@ -31,7 +32,7 @@ export default function Index() {
   const [addLocationCompany, setAddLocationCompany] = useState<Company | null>(null);
   const [addLocationOpen, setAddLocationOpen] = useState(false);
   const [contentSearch, setContentSearch] = useState("");
-  const { scrapedContent, scraping, loadScrapedContent, scrapeCompanyUrl, searchContent } = useScraping();
+  const { scrapedContent, scraping, scrapeProgress, loadScrapedContent, scrapeCompanyUrl, scrapeAllCompanies, searchContent } = useScraping();
 
   // Load companies from database on mount
   useEffect(() => {
@@ -370,17 +371,28 @@ export default function Index() {
           <div className="relative">
             <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)]" />
             <Input
-              placeholder="Søk i nettside-innhold..."
+              placeholder="Søk i nettside-innhold (f.eks. elektriker, hyundai)..."
               value={contentSearch}
               onChange={e => setContentSearch(e.target.value)}
               className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
             />
-            {scraping && (
-              <span className="absolute right-2.5 top-2.5 text-[10px] text-[hsl(210,20%,55%)] animate-pulse">
-                Skanner...
-              </span>
-            )}
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full gap-2 text-xs"
+            disabled={scraping || companies.length === 0}
+            onClick={async () => {
+              const result = await scrapeAllCompanies(companies.map(c => ({ id: c.id, url: c.url })));
+              if (result) {
+                toast.success(`${result.success} nettsider skannet!`);
+                if (result.failed > 0) toast.warning(`${result.failed} kunne ikke skannes.`);
+              }
+            }}
+          >
+            <ScanSearch className="h-3.5 w-3.5" />
+            {scraping ? scrapeProgress || "Skanner..." : `Skann alle nettsider (${scrapedContent.length}/${companies.length} skannet)`}
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 py-2 space-y-4">

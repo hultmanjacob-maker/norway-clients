@@ -1,7 +1,6 @@
 // Hook for scraping company websites and searching content
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 interface ScrapedContent {
   id: string;
@@ -13,6 +12,7 @@ interface ScrapedContent {
 export function useScraping() {
   const [scrapedContent, setScrapedContent] = useState<ScrapedContent[]>([]);
   const [scraping, setScraping] = useState(false);
+  const [scrapeProgress, setScrapeProgress] = useState("");
 
   const loadScrapedContent = useCallback(async () => {
     const { data, error } = await supabase
@@ -33,7 +33,6 @@ export function useScraping() {
   const scrapeCompanyUrl = useCallback(async (companyId: string, url: string) => {
     if (!url) return;
 
-    setScraping(true);
     try {
       const { data, error } = await supabase.functions.invoke("firecrawl-scrape", {
         body: { url },
@@ -41,11 +40,11 @@ export function useScraping() {
 
       if (error || !data?.success) {
         console.error("Scrape failed:", error || data?.error);
-        return;
+        return false;
       }
 
       const content = data.content || "";
-      if (!content) return;
+      if (!content) return false;
 
       const { data: inserted, error: insertError } = await supabase
         .from("scraped_content")
@@ -75,13 +74,39 @@ export function useScraping() {
             },
           ];
         });
+        return true;
       }
+      return false;
     } catch (err) {
       console.error("Scrape error:", err);
-    } finally {
-      setScraping(false);
+      return false;
     }
   }, []);
+
+  const scrapeAllCompanies = useCallback(async (companies: { id: string; url: string }[]) => {
+    const toScrape = companies.filter((c) => c.url);
+    if (toScrape.length === 0) return;
+
+    setScraping(true);
+    let success = 0;
+    let failed = 0;
+
+    for (let i = 0; i < toScrape.length; i++) {
+      const c = toScrape[i];
+      setScrapeProgress(`Skanner ${i + 1} av ${toScrape.length}...`);
+      const ok = await scrapeCompanyUrl(c.id, c.url);
+      if (ok) success++;
+      else failed++;
+      // Small delay to avoid rate limiting
+      if (i < toScrape.length - 1) {
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+
+    setScrapeProgress("");
+    setScraping(false);
+    return { success, failed };
+  }, [scrapeCompanyUrl]);
 
   const searchContent = useCallback(
     (query: string): string[] => {
@@ -101,8 +126,10 @@ export function useScraping() {
   return {
     scrapedContent,
     scraping,
+    scrapeProgress,
     loadScrapedContent,
     scrapeCompanyUrl,
+    scrapeAllCompanies,
     searchContent,
   };
 }
