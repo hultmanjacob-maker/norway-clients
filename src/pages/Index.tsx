@@ -367,6 +367,20 @@ export default function Index() {
               ))}
             </SelectContent>
           </Select>
+          <div className="relative">
+            <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)]" />
+            <Input
+              placeholder="Søk i nettside-innhold..."
+              value={contentSearch}
+              onChange={e => setContentSearch(e.target.value)}
+              className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
+            />
+            {scraping && (
+              <span className="absolute right-2.5 top-2.5 text-[10px] text-[hsl(210,20%,55%)] animate-pulse">
+                Skanner...
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
