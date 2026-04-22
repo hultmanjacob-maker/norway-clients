@@ -408,7 +408,7 @@ export default function Index() {
             </p>
           )}
           <Separator className="bg-[hsl(220,35%,22%)]" />
-          <CompanyList companies={filteredCompanies} filter="" onSelect={setSelected} onRemove={removeCompany} onEdit={handleEdit} onAddLocation={handleAddLocation} />
+          <CompanyList companies={filteredCompanies} locations={locations} filter="" onSelect={setSelected} onRemove={removeCompany} onEdit={handleEdit} onAddLocation={handleAddLocation} />
         </div>
       </div>
 
