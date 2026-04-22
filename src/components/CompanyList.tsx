@@ -1,9 +1,10 @@
-import { Company } from "@/types/company";
+import { Company, CompanyLocation } from "@/types/company";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Trash2, MapPin, Pencil, Plus } from "lucide-react";
 
 interface CompanyListProps {
   companies: Company[];
+  locations?: CompanyLocation[];
   filter: string;
   onSelect: (company: Company) => void;
   onRemove: (id: string) => void;
@@ -11,17 +12,21 @@ interface CompanyListProps {
   onAddLocation: (company: Company) => void;
 }
 
-export default function CompanyList({ companies, filter, onSelect, onRemove, onEdit, onAddLocation }: CompanyListProps) {
+export default function CompanyList({ companies, locations = [], filter, onSelect, onRemove, onEdit, onAddLocation }: CompanyListProps) {
   const filtered = companies.filter(c => {
     if (!filter) return true;
     const q = filter.toLowerCase();
     return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q);
   });
 
+  const visibleIds = new Set(filtered.map(c => c.id));
+  const extraLocationsCount = locations.filter(l => visibleIds.has(l.companyId)).length;
+  const totalMarkers = filtered.length + extraLocationsCount;
+
   return (
     <div className="space-y-1">
       <p className="text-xs font-semibold uppercase tracking-wider text-[hsl(210,20%,55%)]">
-        {filtered.length} bedrifter
+        {totalMarkers} bedrifter
       </p>
       <div className="space-y-1">
         {filtered.map(c => (
