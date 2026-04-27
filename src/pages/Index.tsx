@@ -32,6 +32,7 @@ export default function Index() {
   const [addLocationCompany, setAddLocationCompany] = useState<Company | null>(null);
   const [addLocationOpen, setAddLocationOpen] = useState(false);
   const [contentSearch, setContentSearch] = useState("");
+  const [searchPin, setSearchPin] = useState<{ lat: number; lng: number; label: string } | null>(null);
   const { scrapedContent, scraping, scrapeProgress, loadScrapedContent, scrapeCompanyUrl, scrapeAllCompanies, searchContent } = useScraping();
 
   // Load companies from database on mount
@@ -96,6 +97,34 @@ export default function Index() {
   const contentMatchIds = useMemo(() => {
     return contentSearch ? searchContent(contentSearch) : [];
   }, [contentSearch, searchContent]);
+
+  // Geocode search term to drop a red pin when user searches a city/place
+  useEffect(() => {
+    const q = search.trim();
+    if (!q) {
+      setSearchPin(null);
+      return;
+    }
+    // Only try to geocode if it looks like a place (not pure numbers/very short)
+    if (q.length < 2) {
+      setSearchPin(null);
+      return;
+    }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const result = await geocodeAddress(q, "");
+      if (cancelled) return;
+      if (result) {
+        setSearchPin({ lat: result.lat, lng: result.lng, label: q });
+      } else {
+        setSearchPin(null);
+      }
+    }, 600);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [search]);
 
   const filteredCompanies = useMemo(() => {
     return companies.filter(c => {
@@ -413,7 +442,7 @@ export default function Index() {
       </div>
 
       <div className="flex-1 relative">
-        <MapView companies={filteredCompanies} locations={locations} selectedCompany={selected} />
+        <MapView companies={filteredCompanies} locations={locations} selectedCompany={selected} searchPin={searchPin} />
       </div>
 
       <CompanyEditDialog
