@@ -96,5 +96,33 @@ export default function MapView({ companies, locations, selectedCompany, searchP
     mapRef.current.flyTo([selectedCompany.lat, selectedCompany.lng], 13, { duration: 0.8 });
   }, [selectedCompany]);
 
+  // Red search pin
+  useEffect(() => {
+    if (!mapRef.current) return;
+    if (searchMarkerRef.current) {
+      searchMarkerRef.current.remove();
+      searchMarkerRef.current = null;
+    }
+    if (!searchPin) return;
+
+    const redIcon = L.divIcon({
+      className: "search-pin-icon",
+      html: `<div style="position:relative;width:28px;height:40px;">
+        <svg viewBox="0 0 28 40" width="28" height="40" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 0C6.27 0 0 6.27 0 14c0 10.5 14 26 14 26s14-15.5 14-26C28 6.27 21.73 0 14 0z" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"/>
+          <circle cx="14" cy="14" r="5" fill="#fff"/>
+        </svg>
+      </div>`,
+      iconSize: [28, 40],
+      iconAnchor: [14, 40],
+      popupAnchor: [0, -36],
+    });
+
+    const marker = L.marker([searchPin.lat, searchPin.lng], { icon: redIcon, zIndexOffset: 1000 }).addTo(mapRef.current);
+    marker.bindPopup(`<div style="text-align:center;min-width:120px"><strong>📍 ${searchPin.label}</strong><div style="font-size:11px;color:#888;margin-top:2px">Søkt sted</div></div>`);
+    searchMarkerRef.current = marker;
+    mapRef.current.flyTo([searchPin.lat, searchPin.lng], 11, { duration: 0.8 });
+  }, [searchPin]);
+
   return <div ref={containerRef} className="h-full w-full" style={{ minHeight: "100vh" }} />;
 }
