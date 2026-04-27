@@ -401,6 +401,15 @@ export default function Index() {
               className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
             />
           </div>
+          <div className="relative">
+            <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(0,70%,55%)]" />
+            <Input
+              placeholder="Hitta nära (sett rød pin)"
+              value={nearSearch}
+              onChange={e => setNearSearch(e.target.value)}
+              className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(0,60%,45%)]"
+            />
+          </div>
           <Select value={cityFilter} onValueChange={setCityFilter}>
             <SelectTrigger className="bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)]">
               <SelectValue placeholder="Filtrer på by" />
