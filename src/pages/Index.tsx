@@ -32,6 +32,7 @@ export default function Index() {
   const [addLocationCompany, setAddLocationCompany] = useState<Company | null>(null);
   const [addLocationOpen, setAddLocationOpen] = useState(false);
   const [contentSearch, setContentSearch] = useState("");
+  const [nearSearch, setNearSearch] = useState("");
   const [searchPin, setSearchPin] = useState<{ lat: number; lng: number; label: string } | null>(null);
   const { scrapedContent, scraping, scrapeProgress, loadScrapedContent, scrapeCompanyUrl, scrapeAllCompanies, searchContent } = useScraping();
 
