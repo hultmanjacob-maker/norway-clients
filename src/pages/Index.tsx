@@ -442,7 +442,7 @@ export default function Index() {
       </div>
 
       <div className="flex-1 relative">
-        <MapView companies={filteredCompanies} locations={locations} selectedCompany={selected} />
+        <MapView companies={filteredCompanies} locations={locations} selectedCompany={selected} searchPin={searchPin} />
       </div>
 
       <CompanyEditDialog
