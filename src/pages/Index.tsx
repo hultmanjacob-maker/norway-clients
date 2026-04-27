@@ -32,6 +32,7 @@ export default function Index() {
   const [addLocationCompany, setAddLocationCompany] = useState<Company | null>(null);
   const [addLocationOpen, setAddLocationOpen] = useState(false);
   const [contentSearch, setContentSearch] = useState("");
+  const [nearSearch, setNearSearch] = useState("");
   const [searchPin, setSearchPin] = useState<{ lat: number; lng: number; label: string } | null>(null);
   const { scrapedContent, scraping, scrapeProgress, loadScrapedContent, scrapeCompanyUrl, scrapeAllCompanies, searchContent } = useScraping();
 
@@ -98,15 +99,10 @@ export default function Index() {
     return contentSearch ? searchContent(contentSearch) : [];
   }, [contentSearch, searchContent]);
 
-  // Geocode search term to drop a red pin when user searches a city/place
+  // Geocode "Hitta nära" search to drop a red pin on map (does not filter list)
   useEffect(() => {
-    const q = search.trim();
-    if (!q) {
-      setSearchPin(null);
-      return;
-    }
-    // Only try to geocode if it looks like a place (not pure numbers/very short)
-    if (q.length < 2) {
+    const q = nearSearch.trim();
+    if (!q || q.length < 2) {
       setSearchPin(null);
       return;
     }
@@ -124,7 +120,7 @@ export default function Index() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [search]);
+  }, [nearSearch]);
 
   const filteredCompanies = useMemo(() => {
     return companies.filter(c => {
@@ -403,6 +399,15 @@ export default function Index() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
+            />
+          </div>
+          <div className="relative">
+            <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(0,70%,55%)]" />
+            <Input
+              placeholder="Hitta nära (sett rød pin)"
+              value={nearSearch}
+              onChange={e => setNearSearch(e.target.value)}
+              className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(0,60%,45%)]"
             />
           </div>
           <Select value={cityFilter} onValueChange={setCityFilter}>
