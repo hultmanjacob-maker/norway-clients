@@ -15,12 +15,14 @@ interface MapViewProps {
   companies: Company[];
   locations: CompanyLocation[];
   selectedCompany: Company | null;
+  searchPin?: { lat: number; lng: number; label: string } | null;
 }
 
-export default function MapView({ companies, locations, selectedCompany }: MapViewProps) {
+export default function MapView({ companies, locations, selectedCompany, searchPin }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+  const searchMarkerRef = useRef<L.Marker | null>(null);
 
   // Initialize map – centered on Norway
   useEffect(() => {
