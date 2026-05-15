@@ -1,7 +1,10 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
+import "leaflet.markercluster";
 import { Company, CompanyLocation } from "@/types/company";
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 // Fix default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
