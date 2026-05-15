@@ -12,7 +12,8 @@ import ExcelImport from "@/components/ExcelImport";
 import CompanyList from "@/components/CompanyList";
 import AddLocationDialog from "@/components/AddLocationDialog";
 import MapView from "@/components/MapView";
-import { Search, MapPin, Globe, ScanSearch } from "lucide-react";
+import { Search, MapPin, Globe, ScanSearch, Tag } from "lucide-react";
+import { INDUSTRIES } from "@/lib/industries";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,7 +23,7 @@ export default function Index() {
   const { categories, addCategory } = useCategories();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [search, setSearch] = useState("");
-  const [cityFilter, setCityFilter] = useState("all");
+  const [industryFilter, setIndustryFilter] = useState("all");
   const [selected, setSelected] = useState<Company | null>(null);
   const [editCompany, setEditCompany] = useState<Company | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -61,6 +62,7 @@ export default function Index() {
             url: row.url,
             lat: row.lat,
             lng: row.lng,
+            industryTag: (row as any).industry_tag || "",
           }))
         );
       }
@@ -90,8 +92,8 @@ export default function Index() {
     loadScrapedContent();
   }, [loadScrapedContent]);
 
-  const cities = useMemo(() => {
-    const set = new Set(companies.map(c => c.city).filter(Boolean));
+  const availableIndustries = useMemo(() => {
+    const set = new Set(companies.map(c => c.industryTag).filter(Boolean) as string[]);
     return Array.from(set).sort();
   }, [companies]);
 
@@ -124,14 +126,13 @@ export default function Index() {
 
   const filteredCompanies = useMemo(() => {
     return companies.filter(c => {
-      if (cityFilter !== "all" && c.city !== cityFilter) return false;
-      // If content search is active, only show matching companies
+      if (industryFilter !== "all" && c.industryTag !== industryFilter) return false;
       if (contentSearch && !contentMatchIds.includes(c.id)) return false;
       if (!search) return true;
       const q = search.toLowerCase();
-      return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || (c.url && c.url.toLowerCase().includes(q));
+      return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || (c.url && c.url.toLowerCase().includes(q)) || (c.industryTag || "").toLowerCase().includes(q);
     });
-  }, [companies, cityFilter, search, contentSearch, contentMatchIds]);
+  }, [companies, industryFilter, search, contentSearch, contentMatchIds]);
 
   const addCompany = useCallback(async (data: { name: string; address: string; postalCode: string; category: string; url: string }) => {
     setLoading(true);
@@ -181,9 +182,12 @@ export default function Index() {
     setLoading(false);
 
     if (data.url) {
-      scrapeCompanyUrl(company.id, data.url).then((result) => {
+      scrapeCompanyUrl(company.id, data.url, { name: data.name, category: data.category }).then((result) => {
         if (result.success) {
           toast.success(`Nettside for ${data.name} er skannet!`);
+          if (result.industry) {
+            setCompanies(prev => prev.map(c => c.id === company.id ? { ...c, industryTag: result.industry as string } : c));
+          }
         }
       });
     }
@@ -380,10 +384,19 @@ export default function Index() {
             disabled={scraping || companies.length === 0}
             title={scraping ? scrapeProgress || "Skanner..." : `Skann alle nettsider (${scrapedContent.length}/${companies.length})`}
             onClick={async () => {
-              const result = await scrapeAllCompanies(companies.map(c => ({ id: c.id, url: c.url })));
+              const result = await scrapeAllCompanies(companies.map(c => ({ id: c.id, url: c.url, name: c.name, category: c.category })));
               if (result) {
                 toast.success(`${result.success} nettsider skannet!`);
                 if (result.failed > 0) toast.warning(`${result.failed} kunne ikke skannes.`);
+                // Reload companies to pick up industry_tag updates
+                const { data } = await supabase.from("companies").select("*").order("created_at", { ascending: false });
+                if (data) {
+                  setCompanies(data.map((row) => ({
+                    id: row.id, name: row.name, address: row.address, postalCode: row.postal_code,
+                    city: row.city, category: row.category, url: row.url, lat: row.lat, lng: row.lng,
+                    industryTag: (row as any).industry_tag || "",
+                  })));
+                }
               }
             }}
           >
@@ -410,17 +423,23 @@ export default function Index() {
               className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(0,60%,45%)]"
             />
           </div>
-          <Select value={cityFilter} onValueChange={setCityFilter}>
-            <SelectTrigger className="bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)]">
-              <SelectValue placeholder="Filtrer på by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Alle byer</SelectItem>
-              {cities.map(city => (
-                <SelectItem key={city} value={city}>{city}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="relative">
+            <Tag className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)] pointer-events-none z-10" />
+            <Select value={industryFilter} onValueChange={setIndustryFilter}>
+              <SelectTrigger className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)]">
+                <SelectValue placeholder="Filtrer på bransje" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle bransjer</SelectItem>
+                {INDUSTRIES.filter(i => availableIndustries.includes(i)).map(ind => (
+                  <SelectItem key={ind} value={ind}>{ind}</SelectItem>
+                ))}
+                {availableIndustries.filter(i => !INDUSTRIES.includes(i as any)).map(ind => (
+                  <SelectItem key={ind} value={ind}>{ind}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="relative">
             <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)]" />
             <Input

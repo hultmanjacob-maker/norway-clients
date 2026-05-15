@@ -39,6 +39,7 @@ export type Database = {
           city: string
           created_at: string
           id: string
+          industry_tag: string
           lat: number
           lng: number
           name: string
@@ -51,6 +52,7 @@ export type Database = {
           city?: string
           created_at?: string
           id?: string
+          industry_tag?: string
           lat: number
           lng: number
           name: string
@@ -63,6 +65,7 @@ export type Database = {
           city?: string
           created_at?: string
           id?: string
+          industry_tag?: string
           lat?: number
           lng?: number
           name?: string

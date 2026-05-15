@@ -30,7 +30,22 @@ export function useScraping() {
     }
   }, []);
 
-  const scrapeCompanyUrl = useCallback(async (companyId: string, url: string) => {
+  const classifyIndustry = useCallback(async (companyId: string, name: string, category: string, content: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("classify-industry", {
+        body: { name, category, content },
+      });
+      if (error || !data?.success) return null;
+      const industry = data.industry as string;
+      await supabase.from("companies").update({ industry_tag: industry }).eq("id", companyId);
+      return industry;
+    } catch (err) {
+      console.error("Classify error:", err);
+      return null;
+    }
+  }, []);
+
+  const scrapeCompanyUrl = useCallback(async (companyId: string, url: string, meta?: { name?: string; category?: string }) => {
     if (!url) return { success: false, skipped: true, reason: "missing_url" };
 
     try {
@@ -84,7 +99,8 @@ export function useScraping() {
             },
           ];
         });
-        return { success: true, skipped: false };
+        const industry = await classifyIndustry(companyId, meta?.name || "", meta?.category || "", content);
+        return { success: true, skipped: false, industry };
       }
 
       return { success: false, skipped: false, reason: insertError?.message || "save_failed" };
@@ -96,9 +112,9 @@ export function useScraping() {
         reason: err instanceof Error ? err.message : "unknown_error",
       };
     }
-  }, []);
+  }, [classifyIndustry]);
 
-  const scrapeAllCompanies = useCallback(async (companies: { id: string; url: string }[]) => {
+  const scrapeAllCompanies = useCallback(async (companies: { id: string; url: string; name?: string; category?: string }[]) => {
     const alreadyScrapedIds = new Set(scrapedContent.map((s) => s.companyId));
     const toScrape = companies.filter((c) => c.url && !alreadyScrapedIds.has(c.id));
     if (toScrape.length === 0) return { success: 0, failed: 0, skipped: companies.length - toScrape.length };
@@ -110,7 +126,7 @@ export function useScraping() {
     for (let i = 0; i < toScrape.length; i++) {
       const c = toScrape[i];
       setScrapeProgress(`Skanner ${i + 1} av ${toScrape.length}...`);
-      const result = await scrapeCompanyUrl(c.id, c.url);
+      const result = await scrapeCompanyUrl(c.id, c.url, { name: c.name, category: c.category });
       if (result.success) success++;
       else failed++;
       if (i < toScrape.length - 1) {
@@ -127,7 +143,6 @@ export function useScraping() {
     (query: string): string[] => {
       if (!query.trim()) return [];
       const q = query.trim().toLowerCase();
-      // Use word boundary matching to avoid partial matches like "ford" in "affordable"
       const regex = new RegExp(`\\b${q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
       const matchingCompanyIds = new Set<string>();
       for (const item of scrapedContent) {
@@ -148,5 +163,6 @@ export function useScraping() {
     scrapeCompanyUrl,
     scrapeAllCompanies,
     searchContent,
+    classifyIndustry,
   };
 }
