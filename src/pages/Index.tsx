@@ -23,7 +23,7 @@ export default function Index() {
   const { categories, addCategory } = useCategories();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [search, setSearch] = useState("");
-  const [cityFilter, setCityFilter] = useState("all");
+  const [industryFilter, setIndustryFilter] = useState("all");
   const [selected, setSelected] = useState<Company | null>(null);
   const [editCompany, setEditCompany] = useState<Company | null>(null);
   const [editOpen, setEditOpen] = useState(false);
