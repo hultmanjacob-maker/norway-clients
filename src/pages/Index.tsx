@@ -411,17 +411,23 @@ export default function Index() {
               className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(0,60%,45%)]"
             />
           </div>
-          <Select value={cityFilter} onValueChange={setCityFilter}>
-            <SelectTrigger className="bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)]">
-              <SelectValue placeholder="Filtrer på by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Alle byer</SelectItem>
-              {cities.map(city => (
-                <SelectItem key={city} value={city}>{city}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="relative">
+            <Tag className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)] pointer-events-none z-10" />
+            <Select value={industryFilter} onValueChange={setIndustryFilter}>
+              <SelectTrigger className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)]">
+                <SelectValue placeholder="Filtrer på bransje" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle bransjer</SelectItem>
+                {INDUSTRIES.filter(i => availableIndustries.includes(i)).map(ind => (
+                  <SelectItem key={ind} value={ind}>{ind}</SelectItem>
+                ))}
+                {availableIndustries.filter(i => !INDUSTRIES.includes(i as any)).map(ind => (
+                  <SelectItem key={ind} value={ind}>{ind}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="relative">
             <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)]" />
             <Input
