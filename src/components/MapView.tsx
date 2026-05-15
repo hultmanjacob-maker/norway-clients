@@ -66,6 +66,7 @@ export default function MapView({ companies, locations, selectedCompany, searchP
           <strong>${c.name}</strong>
           <div style="font-size:12px;margin-top:4px">${c.address}</div>
           <div style="font-size:12px">${c.postalCode} ${c.city}</div>
+          ${c.industryTag ? `<div style="display:inline-block;font-size:10px;font-weight:600;color:#fff;background:#0ea5e9;padding:2px 8px;border-radius:9999px;margin-top:6px">${c.industryTag}</div>` : ""}
           ${c.category ? `<div style="font-size:11px;color:#6366f1;margin-top:4px">${c.category}</div>` : ""}
           ${urlHtml ? `<div style="margin-top:4px">${urlHtml}</div>` : ""}
         </div>
