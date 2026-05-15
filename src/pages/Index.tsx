@@ -62,6 +62,7 @@ export default function Index() {
             url: row.url,
             lat: row.lat,
             lng: row.lng,
+            industryTag: (row as any).industry_tag || "",
           }))
         );
       }
