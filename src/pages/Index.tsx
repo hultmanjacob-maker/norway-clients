@@ -431,7 +431,7 @@ export default function Index() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Alle bransjer</SelectItem>
-                {INDUSTRIES.filter(i => availableIndustries.includes(i)).map(ind => (
+                {INDUSTRIES.map(ind => (
                   <SelectItem key={ind} value={ind}>{ind}</SelectItem>
                 ))}
                 {availableIndustries.filter(i => !INDUSTRIES.includes(i as any)).map(ind => (
