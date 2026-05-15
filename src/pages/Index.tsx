@@ -93,8 +93,10 @@ export default function Index() {
   }, [loadScrapedContent]);
 
   const availableIndustries = useMemo(() => {
-    const set = new Set(companies.map(c => c.industryTag).filter(Boolean) as string[]);
-    return Array.from(set).sort();
+    const set = new Set(companies.map(c => (c.industryTag || "").trim()).filter(Boolean));
+    const known = INDUSTRIES.filter(industry => set.has(industry));
+    const custom = Array.from(set).filter(industry => !INDUSTRIES.includes(industry as any)).sort();
+    return [...known, ...custom];
   }, [companies]);
 
   const contentMatchIds = useMemo(() => {
@@ -126,11 +128,12 @@ export default function Index() {
 
   const filteredCompanies = useMemo(() => {
     return companies.filter(c => {
-      if (industryFilter !== "all" && c.industryTag !== industryFilter) return false;
+      const industryTag = (c.industryTag || "").trim();
+      if (industryFilter !== "all" && industryTag !== industryFilter) return false;
       if (contentSearch && !contentMatchIds.includes(c.id)) return false;
       if (!search) return true;
       const q = search.toLowerCase();
-      return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || (c.url && c.url.toLowerCase().includes(q)) || (c.industryTag || "").toLowerCase().includes(q);
+      return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || (c.url && c.url.toLowerCase().includes(q)) || industryTag.toLowerCase().includes(q);
     });
   }, [companies, industryFilter, search, contentSearch, contentMatchIds]);
 
@@ -152,6 +155,7 @@ export default function Index() {
         city: coords.city,
         category: data.category,
         url: data.url,
+        industry_tag: "Annet",
         lat: coords.lat,
         lng: coords.lng,
       })
@@ -175,6 +179,7 @@ export default function Index() {
       url: inserted.url,
       lat: inserted.lat,
       lng: inserted.lng,
+      industryTag: inserted.industry_tag || "Annet",
     };
     setCompanies(prev => [company, ...prev]);
     setSelected(company);
@@ -198,7 +203,7 @@ export default function Index() {
     let added = 0;
     let failed = 0;
     let consecutiveFailures = 0;
-    const pendingCompanies: { name: string; address: string; postal_code: string; city: string; category: string; url: string; lat: number; lng: number }[] = [];
+    const pendingCompanies: { name: string; address: string; postal_code: string; city: string; category: string; url: string; industry_tag: string; lat: number; lng: number }[] = [];
 
     try {
       for (let i = 0; i < rows.length; i += 1) {
@@ -214,6 +219,7 @@ export default function Index() {
             city: coords.city,
             category: row.category,
             url: row.url,
+            industry_tag: "Annet",
             lat: coords.lat,
             lng: coords.lng,
           });
@@ -244,6 +250,7 @@ export default function Index() {
               url: row.url,
               lat: row.lat,
               lng: row.lng,
+              industryTag: row.industry_tag || "Annet",
             }));
             setCompanies(prev => [...prev, ...mapped]);
           }
@@ -431,10 +438,7 @@ export default function Index() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Alle bransjer</SelectItem>
-                {INDUSTRIES.map(ind => (
-                  <SelectItem key={ind} value={ind}>{ind}</SelectItem>
-                ))}
-                {availableIndustries.filter(i => !INDUSTRIES.includes(i as any)).map(ind => (
+                {availableIndustries.map(ind => (
                   <SelectItem key={ind} value={ind}>{ind}</SelectItem>
                 ))}
               </SelectContent>
