@@ -1,0 +1,1 @@
+ALTER TABLE public.companies ADD COLUMN IF NOT EXISTS industry_tag text NOT NULL DEFAULT '';
