@@ -126,14 +126,13 @@ export default function Index() {
 
   const filteredCompanies = useMemo(() => {
     return companies.filter(c => {
-      if (cityFilter !== "all" && c.city !== cityFilter) return false;
-      // If content search is active, only show matching companies
+      if (industryFilter !== "all" && c.industryTag !== industryFilter) return false;
       if (contentSearch && !contentMatchIds.includes(c.id)) return false;
       if (!search) return true;
       const q = search.toLowerCase();
-      return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || (c.url && c.url.toLowerCase().includes(q));
+      return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || (c.url && c.url.toLowerCase().includes(q)) || (c.industryTag || "").toLowerCase().includes(q);
     });
-  }, [companies, cityFilter, search, contentSearch, contentMatchIds]);
+  }, [companies, industryFilter, search, contentSearch, contentMatchIds]);
 
   const addCompany = useCallback(async (data: { name: string; address: string; postalCode: string; category: string; url: string }) => {
     setLoading(true);
