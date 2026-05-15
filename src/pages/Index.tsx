@@ -384,10 +384,19 @@ export default function Index() {
             disabled={scraping || companies.length === 0}
             title={scraping ? scrapeProgress || "Skanner..." : `Skann alle nettsider (${scrapedContent.length}/${companies.length})`}
             onClick={async () => {
-              const result = await scrapeAllCompanies(companies.map(c => ({ id: c.id, url: c.url })));
+              const result = await scrapeAllCompanies(companies.map(c => ({ id: c.id, url: c.url, name: c.name, category: c.category })));
               if (result) {
                 toast.success(`${result.success} nettsider skannet!`);
                 if (result.failed > 0) toast.warning(`${result.failed} kunne ikke skannes.`);
+                // Reload companies to pick up industry_tag updates
+                const { data } = await supabase.from("companies").select("*").order("created_at", { ascending: false });
+                if (data) {
+                  setCompanies(data.map((row) => ({
+                    id: row.id, name: row.name, address: row.address, postalCode: row.postal_code,
+                    city: row.city, category: row.category, url: row.url, lat: row.lat, lng: row.lng,
+                    industryTag: (row as any).industry_tag || "",
+                  })));
+                }
               }
             }}
           >
