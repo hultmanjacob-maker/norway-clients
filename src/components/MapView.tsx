@@ -1,7 +1,10 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
+import "leaflet.markercluster";
 import { Company, CompanyLocation } from "@/types/company";
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 // Fix default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -21,7 +24,7 @@ interface MapViewProps {
 export default function MapView({ companies, locations, selectedCompany, searchPin }: MapViewProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const markersRef = useRef<L.LayerGroup | null>(null);
+  const markersRef = useRef<L.MarkerClusterGroup | null>(null);
   const searchMarkerRef = useRef<L.Marker | null>(null);
 
   // Initialize map – centered on Norway
@@ -31,7 +34,12 @@ export default function MapView({ companies, locations, selectedCompany, searchP
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
-    markersRef.current = L.layerGroup().addTo(map);
+    markersRef.current = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      spiderfyOnMaxZoom: true,
+      maxClusterRadius: 50,
+    });
+    map.addLayer(markersRef.current);
     mapRef.current = map;
 
     return () => {
