@@ -182,9 +182,12 @@ export default function Index() {
     setLoading(false);
 
     if (data.url) {
-      scrapeCompanyUrl(company.id, data.url).then((result) => {
+      scrapeCompanyUrl(company.id, data.url, { name: data.name, category: data.category }).then((result) => {
         if (result.success) {
           toast.success(`Nettside for ${data.name} er skannet!`);
+          if (result.industry) {
+            setCompanies(prev => prev.map(c => c.id === company.id ? { ...c, industryTag: result.industry as string } : c));
+          }
         }
       });
     }
