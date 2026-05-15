@@ -8,6 +8,7 @@ export interface Company {
   url: string;
   lat: number;
   lng: number;
+  industryTag?: string;
 }
 
 export interface CompanyLocation {
