@@ -30,7 +30,22 @@ export function useScraping() {
     }
   }, []);
 
-  const scrapeCompanyUrl = useCallback(async (companyId: string, url: string) => {
+  const classifyIndustry = useCallback(async (companyId: string, name: string, category: string, content: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("classify-industry", {
+        body: { name, category, content },
+      });
+      if (error || !data?.success) return null;
+      const industry = data.industry as string;
+      await supabase.from("companies").update({ industry_tag: industry }).eq("id", companyId);
+      return industry;
+    } catch (err) {
+      console.error("Classify error:", err);
+      return null;
+    }
+  }, []);
+
+  const scrapeCompanyUrl = useCallback(async (companyId: string, url: string, meta?: { name?: string; category?: string }) => {
     if (!url) return { success: false, skipped: true, reason: "missing_url" };
 
     try {
@@ -84,7 +99,8 @@ export function useScraping() {
             },
           ];
         });
-        return { success: true, skipped: false };
+        const industry = await classifyIndustry(companyId, meta?.name || "", meta?.category || "", content);
+        return { success: true, skipped: false, industry };
       }
 
       return { success: false, skipped: false, reason: insertError?.message || "save_failed" };
@@ -96,7 +112,7 @@ export function useScraping() {
         reason: err instanceof Error ? err.message : "unknown_error",
       };
     }
-  }, []);
+  }, [classifyIndustry]);
 
   const scrapeAllCompanies = useCallback(async (companies: { id: string; url: string }[]) => {
     const alreadyScrapedIds = new Set(scrapedContent.map((s) => s.companyId));
