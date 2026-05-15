@@ -92,8 +92,8 @@ export default function Index() {
     loadScrapedContent();
   }, [loadScrapedContent]);
 
-  const cities = useMemo(() => {
-    const set = new Set(companies.map(c => c.city).filter(Boolean));
+  const availableIndustries = useMemo(() => {
+    const set = new Set(companies.map(c => c.industryTag).filter(Boolean) as string[]);
     return Array.from(set).sort();
   }, [companies]);
 
