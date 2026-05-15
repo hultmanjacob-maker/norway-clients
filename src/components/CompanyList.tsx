@@ -1,6 +1,7 @@
 import { Company, CompanyLocation } from "@/types/company";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Trash2, MapPin, Pencil, Plus } from "lucide-react";
+import { ExternalLink, Trash2, MapPin, Pencil, Plus, Copy } from "lucide-react";
+import { toast } from "sonner";
 
 interface CompanyListProps {
   companies: Company[];
@@ -23,11 +24,38 @@ export default function CompanyList({ companies, locations = [], filter, onSelec
   const extraLocationsCount = locations.filter(l => visibleIds.has(l.companyId)).length;
   const totalMarkers = filtered.length + extraLocationsCount;
 
+  const copyUrls = async () => {
+    const urls = filtered
+      .map(c => (c.url || "").trim())
+      .filter(Boolean)
+      .map(u => u.replace(/^https?:\/\//i, "").replace(/\/$/, ""));
+    if (urls.length === 0) {
+      toast.error("Ingen URL-er å kopiere");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(urls.join("\n"));
+      toast.success(`${urls.length} URL-er kopiert`);
+    } catch {
+      toast.error("Kunne ikke kopiere");
+    }
+  };
+
   return (
     <div className="space-y-1">
-      <p className="text-xs font-semibold uppercase tracking-wider text-[hsl(210,20%,55%)]">
-        {totalMarkers} bedrifter
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[hsl(210,20%,55%)]">
+          {totalMarkers} bedrifter
+        </p>
+        <button
+          onClick={copyUrls}
+          className="flex items-center gap-1 text-xs text-[hsl(210,20%,55%)] hover:text-white transition-colors"
+          title="Kopier alle URL-er"
+        >
+          <Copy className="h-3 w-3" />
+          Kopier URL-er
+        </button>
+      </div>
       <div className="space-y-1">
         {filtered.map(c => (
           <div
