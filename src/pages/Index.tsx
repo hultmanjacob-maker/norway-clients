@@ -155,6 +155,7 @@ export default function Index() {
         city: coords.city,
         category: data.category,
         url: data.url,
+        industry_tag: "Annet",
         lat: coords.lat,
         lng: coords.lng,
       })
@@ -178,6 +179,7 @@ export default function Index() {
       url: inserted.url,
       lat: inserted.lat,
       lng: inserted.lng,
+      industryTag: inserted.industry_tag || "Annet",
     };
     setCompanies(prev => [company, ...prev]);
     setSelected(company);
@@ -201,7 +203,7 @@ export default function Index() {
     let added = 0;
     let failed = 0;
     let consecutiveFailures = 0;
-    const pendingCompanies: { name: string; address: string; postal_code: string; city: string; category: string; url: string; lat: number; lng: number }[] = [];
+    const pendingCompanies: { name: string; address: string; postal_code: string; city: string; category: string; url: string; industry_tag: string; lat: number; lng: number }[] = [];
 
     try {
       for (let i = 0; i < rows.length; i += 1) {
@@ -217,6 +219,7 @@ export default function Index() {
             city: coords.city,
             category: row.category,
             url: row.url,
+            industry_tag: "Annet",
             lat: coords.lat,
             lng: coords.lng,
           });
@@ -247,6 +250,7 @@ export default function Index() {
               url: row.url,
               lat: row.lat,
               lng: row.lng,
+              industryTag: row.industry_tag || "Annet",
             }));
             setCompanies(prev => [...prev, ...mapped]);
           }
