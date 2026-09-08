@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Company, CompanyLocation } from "@/types/company";
 import { geocodeAddress } from "@/hooks/useGeocode";
@@ -14,8 +13,7 @@ import AddLocationDialog from "@/components/AddLocationDialog";
 import MapView from "@/components/MapView";
 import SimilarCompanies from "@/components/SimilarCompanies";
 
-import { Search, MapPin, ScanSearch, Tag } from "lucide-react";
-import { INDUSTRIES } from "@/lib/industries";
+import { Search, MapPin, Globe, ScanSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,7 +23,6 @@ export default function Index() {
   const { categories, addCategory } = useCategories();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [search, setSearch] = useState("");
-  const [industryFilter, setIndustryFilter] = useState("all");
   const [selected, setSelected] = useState<Company | null>(null);
   const [editCompany, setEditCompany] = useState<Company | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -425,18 +422,13 @@ export default function Index() {
             />
           </div>
           <div className="relative">
-            <Tag className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)] pointer-events-none z-10" />
-            <Select value={industryFilter} onValueChange={setIndustryFilter}>
-              <SelectTrigger className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)]">
-                <SelectValue placeholder="Filtrer på bransje" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle bransjer</SelectItem>
-                {availableIndustries.map(ind => (
-                  <SelectItem key={ind} value={ind}>{ind}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)]" />
+            <Input
+              placeholder="Find reference"
+              value={contentSearch}
+              onChange={e => setContentSearch(e.target.value)}
+              className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
+            />
           </div>
           <SimilarCompanies companies={companies} onSelect={setSelected} />
         </div>
