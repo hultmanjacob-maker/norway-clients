@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, Search } from "lucide-react";
+import { Target, Globe, Search } from "lucide-react";
 import { useSimilarCompanies } from "@/hooks/useSimilarCompanies";
 import { Company } from "@/types/company";
 
@@ -33,16 +33,19 @@ export default function SimilarCompanies({ companies, onSelect }: Props) {
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-wider text-[hsl(210,20%,55%)] flex items-center gap-1.5">
-        <Sparkles className="h-3 w-3" />
+        <Target className="h-3 w-3" />
         Hitta liknande bolag
       </p>
       <form onSubmit={submit} className="flex gap-2">
-        <Input
-          placeholder="www.nibe.se"
-          value={url}
-          onChange={e => setUrl(e.target.value)}
-          className="bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)]"
-        />
+        <div className="relative flex-1">
+          <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)] pointer-events-none" />
+          <Input
+            placeholder="www.nibe.se"
+            value={url}
+            onChange={e => setUrl(e.target.value)}
+            className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)]"
+          />
+        </div>
         <Button type="submit" disabled={loading || !url.trim()} size="sm" className="shrink-0">
           <Search className="h-3.5 w-3.5 mr-1" />
           Søk
