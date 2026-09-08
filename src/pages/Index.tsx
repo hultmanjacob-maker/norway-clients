@@ -34,10 +34,9 @@ export default function Index() {
   const [locations, setLocations] = useState<CompanyLocation[]>([]);
   const [addLocationCompany, setAddLocationCompany] = useState<Company | null>(null);
   const [addLocationOpen, setAddLocationOpen] = useState(false);
-  const [contentSearch, setContentSearch] = useState("");
   const [nearSearch, setNearSearch] = useState("");
   const [searchPin, setSearchPin] = useState<{ lat: number; lng: number; label: string } | null>(null);
-  const { scrapedContent, scraping, scrapeProgress, loadScrapedContent, scrapeCompanyUrl, scrapeAllCompanies, searchContent } = useScraping();
+  const { scrapedContent, scraping, scrapeProgress, loadScrapedContent, scrapeCompanyUrl, scrapeAllCompanies } = useScraping();
 
   // Load companies from database on mount
   useEffect(() => {
@@ -101,10 +100,6 @@ export default function Index() {
     return [...known, ...custom];
   }, [companies]);
 
-  const contentMatchIds = useMemo(() => {
-    return contentSearch ? searchContent(contentSearch) : [];
-  }, [contentSearch, searchContent]);
-
   // Geocode "Hitta nära" search to drop a red pin on map (does not filter list)
   useEffect(() => {
     const q = nearSearch.trim();
@@ -132,12 +127,11 @@ export default function Index() {
     return companies.filter(c => {
       const industryTag = (c.industryTag || "").trim();
       if (industryFilter !== "all" && industryTag !== industryFilter) return false;
-      if (contentSearch && !contentMatchIds.includes(c.id)) return false;
       if (!search) return true;
       const q = search.toLowerCase();
       return c.name.toLowerCase().includes(q) || c.postalCode.includes(q) || c.address.toLowerCase().includes(q) || c.category.toLowerCase().includes(q) || c.city.toLowerCase().includes(q) || (c.url && c.url.toLowerCase().includes(q)) || industryTag.toLowerCase().includes(q);
     });
-  }, [companies, industryFilter, search, contentSearch, contentMatchIds]);
+  }, [companies, industryFilter, search]);
 
   const addCompany = useCallback(async (data: { name: string; address: string; postalCode: string; category: string; url: string }) => {
     setLoading(true);
