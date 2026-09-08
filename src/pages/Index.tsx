@@ -369,7 +369,7 @@ export default function Index() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
-      <div className="w-80 shrink-0 border-r border-[hsl(220,40%,18%)] bg-[hsl(220,40%,13%)] flex flex-col overflow-hidden text-[hsl(210,30%,90%)]">
+      <div className="w-80 shrink-0 border-r border-[hsl(220,40%,18%)] bg-[hsl(220,40%,13%)] flex flex-col overflow-y-auto text-[hsl(210,30%,90%)]">
         <div className="flex items-center justify-between px-4 py-3 border-b border-[hsl(220,40%,18%)]">
           <div className="flex items-center gap-3">
             <img src={logo} alt="Client Map Norway" className="h-8 w-8 rounded" />
@@ -433,7 +433,7 @@ export default function Index() {
           <SimilarCompanies companies={companies} onSelect={setSelected} />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
+        <div className="flex-1 px-3 py-2 space-y-4">
 
           <CompanyForm onAdd={addCompany} loading={loading} categories={categories} onAddCategory={addCategory} />
           <Separator className="bg-[hsl(220,35%,22%)]" />

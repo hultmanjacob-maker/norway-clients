@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,13 @@ function scoreStyle(score: number) {
 
 export default function SimilarCompanies({ companies, onSelect }: Props) {
   const [url, setUrl] = useState("");
-  const { loading, matches, source, error, findSimilar } = useSimilarCompanies();
+  const { loading, matches, source, error, findSimilar, reset } = useSimilarCompanies();
+
+  useEffect(() => {
+    if (!url.trim()) {
+      reset();
+    }
+  }, [url, reset]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +81,7 @@ export default function SimilarCompanies({ companies, onSelect }: Props) {
           {strong.length === 0 ? (
             <p className="text-xs text-[hsl(210,20%,55%)]">Fant ingen tilstrekkelig like bedrifter.</p>
           ) : (
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
               {strong.map(m => {
                 const company = companies.find(c => c.id === m.id);
                 return (
