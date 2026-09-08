@@ -40,7 +40,7 @@ export default function SimilarCompanies({ companies, onSelect }: Props) {
         <div className="relative flex-1">
           <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-[hsl(210,20%,55%)] pointer-events-none" />
           <Input
-            placeholder="www.nibe.se"
+            placeholder="Enter URL"
             value={url}
             onChange={e => setUrl(e.target.value)}
             className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)]"
