@@ -12,6 +12,8 @@ import ExcelImport from "@/components/ExcelImport";
 import CompanyList from "@/components/CompanyList";
 import AddLocationDialog from "@/components/AddLocationDialog";
 import MapView from "@/components/MapView";
+import SimilarCompanies from "@/components/SimilarCompanies";
+
 import { Search, MapPin, Globe, ScanSearch, Tag } from "lucide-react";
 import { INDUSTRIES } from "@/lib/industries";
 import { Button } from "@/components/ui/button";
@@ -453,9 +455,11 @@ export default function Index() {
               className="pl-9 bg-[hsl(220,38%,17%)] border-[hsl(220,35%,22%)] text-[hsl(210,30%,90%)] placeholder:text-[hsl(210,20%,45%)] focus-visible:ring-[hsl(210,60%,45%)]"
             />
           </div>
+          <SimilarCompanies companies={companies} onSelect={setSelected} />
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
+
           <CompanyForm onAdd={addCompany} loading={loading} categories={categories} onAddCategory={addCategory} />
           <Separator className="bg-[hsl(220,35%,22%)]" />
           <ExcelImport onImport={importCompanies} loading={loading} />
