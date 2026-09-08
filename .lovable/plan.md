@@ -46,8 +46,8 @@ Poengsummen vektes: bransje/nisje-match teller mest (ca. 40 %), meningslikhet i 
 - Kall 1 til Lovable AI (`google/gemini-3.8-flash`, structured output): returnerer `{ industry, niche, products[], summary }` med samme `INDUSTRIES`-liste som `classify-industry` — `niche` er en kort, spesifikk betegnelse (f.eks. «Varmepumper»).
 - Henter kandidater server-side med service-role-klient: `companies` (id, name, url, industry_tag) joinet mot `scraped_content` (content). Innhold trunkeres til ~600 tegn per bedrift.
 - Forhåndsfilter i kode for å holde prompten liten: alle med samme `industry_tag` først, deretter opp til ~60 kandidater totalt rangert etter enkelt nøkkelord-overlapp (ordgrense-regex, samme prinsipp som dagens søk).
-- Kall 2 til Lovable AI: rangerer kandidatene semantisk og returnerer `{ id, score, reasons[] }` (maks 2 korte grunner per bedrift). Streamet respons konsumeres server-side for å unngå timeout.
-- Output: `{ success, source: { industry, products }, matches: [...] }`, topp 10 sortert fallende. Feil (402/429/timeout) returneres som lesbar melding til UI.
+- Kall 2 til Lovable AI: rangerer kandidatene semantisk, utleder en kort `niche` per kandidat og returnerer `{ id, score, reasons[] }` (maks 2 korte, konkrete grunner per bedrift — nisje eller produktlikhet, aldri generell bransje). Streamet respons konsumeres server-side for å unngå timeout.
+- Output: `{ success, source: { industry, niche, products }, matches: [...] }`, topp 10 sortert fallende. Feil (402/429/timeout) returneres som lesbar melding til UI.
 
 **Frontend:**
 - Ny `src/components/SimilarCompanies.tsx`: input + Søk-knapp, skeleton-kort under lasting, resultatkort med `Badge` og prosent-pill, tom-tilstand under 30 %.
