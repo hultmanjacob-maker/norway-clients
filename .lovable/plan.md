@@ -1,57 +1,26 @@
-# Hitta liknande bolag
+Gjør venstre spalte rullegardinaktig og nullstill "Hitta liknande bolag" når URL fjernes
 
-En ny funksjon i sidepanelet der du limer inn en ekstern nettadresse (f.eks. www.nibe.se) og får de 10 mest like bedriftene i databasen, med prosent-treff og kort begrunnelse.
+Mål
+1. Hele venstre spalte skal kunne rulles (scrolles) vertikalt slik at man ser alle alternativer selv på små skjermer.
+2. Når URL-feltet i "Hitta liknande bolag" tømmes, skal filtreringen fjernes og alle bedrifter vises igjen.
+3. Resultatområdet under "Hitta liknande bolag" skal være rullebart hvis det inneholder mange treff.
 
-## Slik ser det ut
+Endringer
 
-```text
-+------------------------------------------+
-|  Find reference            [ globe ]     |
-+------------------------------------------+
-|  HITTA LIKNANDE BOLAG                    |
-|  [ www.nibe.se            ] [  Søk  ]    |
-|                                          |
-|  Analyserer bolaget...  (3 skjelettkort) |
-|                                          |
-|  +------------------------------------+  |
-|  | Nordic Varme AS            [ 92% ] |  |
-|  | (Samme nisje: Varmepumper)         |  |
-|  | (Lignende produkt: bergvarme)      |  |
-|  +------------------------------------+  |
-|  | Klima Service AS           [ 64% ] |  |
-|  | (Lignende produkt: ventilasjon)    |  |
-|  +------------------------------------+  |
-+------------------------------------------+
-```
+1. Venstre spalte – full høyde-rulling
+   - I `src/pages/Index.tsx`: fjern `overflow-hidden` på den ytre venstre kolonne-diven og gi den `overflow-y-auto` i stedet.
+   - Behold den eksisterende visuelle strukturen (header, søkefelt, skjema, liste), men la hele kolonnen rulle sammen.
 
-Prosentmerket er grønt over 75 %, gult 50–75 %, grått under 50 %. Kortene bruker samme mørke tema og Badge-stil som resten av listen. Klikk på et kort velger bedriften i listen og zoomer til den på kartet. Er alle treff under 30 %, vises i stedet meldingen «Fant ingen tilstrekkelig like bedrifter».
+2. "Hitta liknande bolag" – nullstill ved tom URL
+   - I `src/components/SimilarCompanies.tsx`: reager på at `url` blir tomt ved å tømme resultater (`matches`) og eventuell feilmelding.
+   - Dette gjøres enkelt ved å kalle en reset-funksjon fra `useSimilarCompanies` når `url.trim()` er `""`.
+   - Alternativt kan komponenten sende en `onClear`-signal oppover, men det enkleste er å holde tilstanden i hooken/komponenten.
 
-## Slik fungerer det
+3. Rullebart resultatområde for liknende bedrifter
+   - I `src/components/SimilarCompanies.tsx`: legg en `max-h` (f.eks. `max-h-64`) og `overflow-y-auto` rundt listen med treffkort.
+   - Sørg for at kortene fortsatt er klikkbare og at scrollbar følger mørk tema.
 
-1. Du limer inn en adresse og trykker Søk.
-2. Nettsiden hentes og leses (samme skrapemetode som allerede brukes).
-3. AI leser innholdet og henter ut bransje (samme kategoriliste som i dag), en konkret nisje (f.eks. «Varmepumper», «Bilforhandlere») og en liste over produkter/tjenester.
-4. Dette sammenlignes mot alle bedrifter som allerede har skrapet innhold, og hver får en poengsum 0–100.
-5. De 10 beste vises som kort med begrunnelse.
-
-Begrunnelses-chipsene nevner aldri den generelle bransjen («Samme bransje: Industri» er borte). I stedet vises konkrete grunner: «Samme nisje: Varmepumper», «Lignende produkt: bergvarme» osv. Nisjen utledes av AI fra nettsideinnholdet — både for bolaget du søker på og for hver bedrift i databasen — så den blir så spesifikk som innholdet tillater.
-
-Poengsummen vektes: bransje/nisje-match teller mest (ca. 40 %), meningslikhet i produkter/tjenester resten (ca. 60 %) — så «SUV-modeller» matcher «firehjulsdrevne biler» selv uten like ord.
-
-## Teknisk
-
-**Ny edge function `find-similar-companies`** (`supabase/functions/find-similar-companies/index.ts`):
-- Input: `{ url }`. Validerer med Zod, CORS som øvrige funksjoner.
-- Skraper URL-en med Firecrawl (samme kall/timeout-håndtering som `firecrawl-scrape`, inkl. 408 som mykt feilsvar).
-- Kall 1 til Lovable AI (`google/gemini-3.8-flash`, structured output): returnerer `{ industry, niche, products[], summary }` med samme `INDUSTRIES`-liste som `classify-industry` — `niche` er en kort, spesifikk betegnelse (f.eks. «Varmepumper»).
-- Henter kandidater server-side med service-role-klient: `companies` (id, name, url, industry_tag) joinet mot `scraped_content` (content). Innhold trunkeres til ~600 tegn per bedrift.
-- Forhåndsfilter i kode for å holde prompten liten: alle med samme `industry_tag` først, deretter opp til ~60 kandidater totalt rangert etter enkelt nøkkelord-overlapp (ordgrense-regex, samme prinsipp som dagens søk).
-- Kall 2 til Lovable AI: rangerer kandidatene semantisk, utleder en kort `niche` per kandidat og returnerer `{ id, score, reasons[] }` (maks 2 korte, konkrete grunner per bedrift — nisje eller produktlikhet, aldri generell bransje). Streamet respons konsumeres server-side for å unngå timeout.
-- Output: `{ success, source: { industry, niche, products }, matches: [...] }`, topp 10 sortert fallende. Feil (402/429/timeout) returneres som lesbar melding til UI.
-
-**Frontend:**
-- Ny `src/components/SimilarCompanies.tsx`: input + Søk-knapp, skeleton-kort under lasting, resultatkort med `Badge` og prosent-pill, tom-tilstand under 30 %.
-- Ny hook `src/hooks/useSimilarCompanies.ts` som kaller funksjonen via `supabase.functions.invoke`.
-- `src/pages/Index.tsx`: rendrer komponenten rett under «Find reference»-feltet og sender `onSelect` som setter `selected` (kartet flyr dit, som ved vanlig valg).
-
-Ingen databaseendringer trengs.
+4. Verifisering
+   - Kjør `bunx tsc --noEmit` for å sikre at TypeScript er gyldig.
+   - Åpne forhåndsvisningen, tøm URL-feltet i "Hitta liknande bolag", og bekreft at alle bedrifter vises igjen.
+   - Rull i venstre spalte og i resultatområdet for å bekrefte oppførselen.
