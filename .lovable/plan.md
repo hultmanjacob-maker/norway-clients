@@ -15,8 +15,8 @@ En ny funksjon i sidepanelet der du limer inn en ekstern nettadresse (f.eks. www
 |                                          |
 |  +------------------------------------+  |
 |  | Nordic Varme AS            [ 92% ] |  |
-|  | (Samme bransje: Energi & Miljø)    |  |
-|  | (Lignende produkt: varmepumper)    |  |
+|  | (Samme nisje: Varmepumper)         |  |
+|  | (Lignende produkt: bergvarme)      |  |
 |  +------------------------------------+  |
 |  | Klima Service AS           [ 64% ] |  |
 |  | (Lignende produkt: ventilasjon)    |  |
