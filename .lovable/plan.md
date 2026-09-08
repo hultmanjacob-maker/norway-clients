@@ -30,11 +30,13 @@ Prosentmerket er grønt over 75 %, gult 50–75 %, grått under 50 %. Kortene br
 
 1. Du limer inn en adresse og trykker Søk.
 2. Nettsiden hentes og leses (samme skrapemetode som allerede brukes).
-3. AI leser innholdet og henter ut bransje (samme kategoriliste som i dag) og en liste over produkter/tjenester.
+3. AI leser innholdet og henter ut bransje (samme kategoriliste som i dag), en konkret nisje (f.eks. «Varmepumper», «Bilforhandlere») og en liste over produkter/tjenester.
 4. Dette sammenlignes mot alle bedrifter som allerede har skrapet innhold, og hver får en poengsum 0–100.
 5. De 10 beste vises som kort med begrunnelse.
 
-Poengsummen vektes: bransje-match teller mest (ca. 40 %), meningslikhet i produkter/tjenester resten (ca. 60 %) — så «SUV-modeller» matcher «firehjulsdrevne biler» selv uten like ord.
+Begrunnelses-chipsene nevner aldri den generelle bransjen («Samme bransje: Industri» er borte). I stedet vises konkrete grunner: «Samme nisje: Varmepumper», «Lignende produkt: bergvarme» osv. Nisjen utledes av AI fra nettsideinnholdet — både for bolaget du søker på og for hver bedrift i databasen — så den blir så spesifikk som innholdet tillater.
+
+Poengsummen vektes: bransje/nisje-match teller mest (ca. 40 %), meningslikhet i produkter/tjenester resten (ca. 60 %) — så «SUV-modeller» matcher «firehjulsdrevne biler» selv uten like ord.
 
 ## Teknisk
 
