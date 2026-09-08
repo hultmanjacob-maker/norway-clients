@@ -12,6 +12,8 @@ import ExcelImport from "@/components/ExcelImport";
 import CompanyList from "@/components/CompanyList";
 import AddLocationDialog from "@/components/AddLocationDialog";
 import MapView from "@/components/MapView";
+import SimilarCompanies from "@/components/SimilarCompanies";
+
 import { Search, MapPin, Globe, ScanSearch, Tag } from "lucide-react";
 import { INDUSTRIES } from "@/lib/industries";
 import { Button } from "@/components/ui/button";
