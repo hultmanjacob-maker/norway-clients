@@ -14,7 +14,7 @@ import AddLocationDialog from "@/components/AddLocationDialog";
 import MapView from "@/components/MapView";
 import SimilarCompanies from "@/components/SimilarCompanies";
 
-import { Search, MapPin, Globe, ScanSearch, Tag } from "lucide-react";
+import { Search, MapPin, ScanSearch, Tag } from "lucide-react";
 import { INDUSTRIES } from "@/lib/industries";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";

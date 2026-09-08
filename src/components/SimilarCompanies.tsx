@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, Search } from "lucide-react";
+import { Target, Globe, Search } from "lucide-react";
 import { useSimilarCompanies } from "@/hooks/useSimilarCompanies";
 import { Company } from "@/types/company";
 
