@@ -48,6 +48,7 @@ export function useSimilarCompanies() {
   }, []);
 
   const reset = useCallback(() => {
+    setLoading(false);
     setMatches(null);
     setSource(null);
     setError(null);
