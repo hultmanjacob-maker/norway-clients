@@ -3,9 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Target, Globe, Search } from "lucide-react";
+import { Target, Globe, Search, Copy } from "lucide-react";
+import { toast } from "sonner";
 import { useSimilarCompanies } from "@/hooks/useSimilarCompanies";
 import { Company } from "@/types/company";
+import { normalizeUrls } from "@/lib/url";
 
 interface Props {
   companies: Company[];
@@ -36,6 +38,22 @@ export default function SimilarCompanies({ companies, onSelect }: Props) {
 
   const strong = matches || [];
 
+  const copyUrls = async () => {
+    const urls = normalizeUrls(strong.map(m => m.url));
+    if (urls.length === 0) {
+      toast.error("Inga URL:er att kopiera");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(urls.join("\n"));
+      toast.success(`${urls.length} URL:er kopierade`);
+    } catch {
+      toast.error("Kunde inte kopiera");
+    }
+  };
+
+  const hasUrls = strong.some(m => m.url && m.url.trim());
+
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-wider text-[hsl(210,20%,55%)] flex items-center gap-1.5">
@@ -55,6 +73,17 @@ export default function SimilarCompanies({ companies, onSelect }: Props) {
         <Button type="submit" disabled={loading || !url.trim()} size="sm" className="shrink-0">
           <Search className="h-3.5 w-3.5 mr-1" />
           Søk
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={copyUrls}
+          disabled={!hasUrls}
+          title="Kopiera URL:er"
+          className="shrink-0 h-9 w-9 text-[hsl(210,20%,55%)] hover:text-white hover:bg-[hsl(220,38%,20%)] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[hsl(210,20%,55%)]"
+        >
+          <Copy className="h-4 w-4" />
         </Button>
       </form>
 

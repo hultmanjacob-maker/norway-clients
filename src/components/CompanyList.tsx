@@ -1,6 +1,7 @@
 import { Company, CompanyLocation } from "@/types/company";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Trash2, MapPin, Pencil, Plus, Copy } from "lucide-react";
+import { normalizeUrls } from "@/lib/url";
 import { toast } from "sonner";
 
 interface CompanyListProps {
@@ -25,10 +26,7 @@ export default function CompanyList({ companies, locations = [], filter, onSelec
   const totalMarkers = filtered.length + extraLocationsCount;
 
   const copyUrls = async () => {
-    const urls = filtered
-      .map(c => (c.url || "").trim())
-      .filter(Boolean)
-      .map(u => u.replace(/^https?:\/\//i, "").replace(/\/$/, ""));
+    const urls = normalizeUrls(filtered.map(c => c.url));
     if (urls.length === 0) {
       toast.error("Ingen URL-er å kopiere");
       return;
