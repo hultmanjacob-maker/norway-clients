@@ -172,7 +172,7 @@ ${content.slice(0, 3000)}`,
 
     // 4) Rank semantically
     const candidateBlock = pool
-      .map((c, i) => `#${i} ${c.name}\n${c.text.slice(0, 600).replace(/\s+/g, ' ')}`)
+      .map((c, i) => `#${i} ${c.name}\n${c.text.slice(0, 350).replace(/\s+/g, ' ')}`)
       .join('\n---\n');
 
     const rankRaw = await callAI(aiKey, [
