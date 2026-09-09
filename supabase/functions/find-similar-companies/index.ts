@@ -126,32 +126,24 @@ Deno.serve(async (req) => {
 Kategorier: ${INDUSTRIES.join(', ')}
 
 Innhold:
-${content.slice(0, 5000)}`,
+${content.slice(0, 3000)}`,
       },
     ]);
+    console.log(`extract done in ${Date.now() - t0}ms`);
     const source = parseJson(extractRaw) as { industry?: string; niche?: string; products?: string[] } | null;
     if (!source) return json({ success: false, error: 'Klarte ikke å analysere nettsiden' });
     const sourceIndustry = INDUSTRIES.find(i => (source.industry || '').toLowerCase().includes(i.toLowerCase())) || 'Annet';
 
-    // 3) Fetch candidates
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    );
-
-    const { data: companies, error: cErr } = await supabase
-      .from('companies')
-      .select('id, name, url, industry_tag');
+    // 3) Candidates (already fetched in parallel above)
+    const { data: companies, error: cErr } = companiesRes;
     if (cErr) return json({ success: false, error: cErr.message }, 500);
 
-    const { data: scraped, error: sErr } = await supabase
-      .from('scraped_content')
-      .select('company_id, content');
+    const { data: scraped, error: sErr } = scrapedRes;
     if (sErr) return json({ success: false, error: sErr.message }, 500);
 
     const contentById = new Map<string, string>();
     for (const row of scraped || []) {
-      if (!contentById.has(row.company_id)) contentById.set(row.company_id, row.content || '');
+      if (!contentById.has(row.company_id)) contentById.set(row.company_id, (row.content || '').slice(0, 1200));
     }
 
     const keywords = [sourceIndustry, source.niche || '', ...(source.products || [])]
