@@ -49,6 +49,8 @@ export function useSimilarCompanies() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ukjent feil");
     } finally {
+      timers.forEach(clearTimeout);
+      setStage("");
       setLoading(false);
     }
   }, []);
@@ -58,7 +60,8 @@ export function useSimilarCompanies() {
     setMatches(null);
     setSource(null);
     setError(null);
+    setStage("");
   }, []);
 
-  return { loading, matches, source, error, findSimilar, reset };
+  return { loading, matches, source, error, stage, findSimilar, reset };
 }
