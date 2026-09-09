@@ -20,7 +20,7 @@ function scoreStyle(score: number) {
 
 export default function SimilarCompanies({ companies, onSelect }: Props) {
   const [url, setUrl] = useState("");
-  const { loading, matches, source, error, findSimilar, reset } = useSimilarCompanies();
+  const { loading, matches, source, error, stage, findSimilar, reset } = useSimilarCompanies();
 
   useEffect(() => {
     if (!url.trim()) {
