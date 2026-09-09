@@ -164,7 +164,7 @@ ${content.slice(0, 3000)}`,
         return { ...c, overlap, sameIndustry, text };
       })
       .sort((a, b) => (Number(b.sameIndustry) - Number(a.sameIndustry)) || (b.overlap - a.overlap))
-      .slice(0, 60);
+      .slice(0, 25);
 
     if (pool.length === 0) {
       return json({ success: true, source: { ...source, industry: sourceIndustry }, matches: [] });
