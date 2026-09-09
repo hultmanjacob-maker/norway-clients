@@ -20,12 +20,18 @@ export function useSimilarCompanies() {
   const [matches, setMatches] = useState<SimilarMatch[] | null>(null);
   const [source, setSource] = useState<SimilarSource | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [stage, setStage] = useState<string>("");
 
   const findSimilar = useCallback(async (url: string) => {
     setLoading(true);
     setError(null);
     setMatches(null);
     setSource(null);
+    setStage("Leser nettsiden...");
+    const timers = [
+      setTimeout(() => setStage("Analyserer innhold..."), 3000),
+      setTimeout(() => setStage("Sammenligner med bedriftene..."), 7000),
+    ];
     try {
       const { data, error: fnError } = await supabase.functions.invoke("find-similar-companies", {
         body: { url },
