@@ -194,6 +194,7 @@ Kandidater:
 ${candidateBlock}`,
       },
     ]);
+    console.log(`rank done in ${Date.now() - t0}ms`);
 
     const ranked = parseJson(rankRaw);
     if (!Array.isArray(ranked)) return json({ success: false, error: 'Klarte ikke å rangere bedriftene' });
