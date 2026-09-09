@@ -3,9 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Target, Globe, Search } from "lucide-react";
+import { Target, Globe, Search, Copy } from "lucide-react";
+import { toast } from "sonner";
 import { useSimilarCompanies } from "@/hooks/useSimilarCompanies";
 import { Company } from "@/types/company";
+import { normalizeUrls } from "@/lib/url";
 
 interface Props {
   companies: Company[];
