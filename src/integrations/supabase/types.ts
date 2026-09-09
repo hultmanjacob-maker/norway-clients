@@ -149,7 +149,29 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      scraped_content_preview: {
+        Row: {
+          company_id: string | null
+          content: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          content?: never
+        }
+        Update: {
+          company_id?: string | null
+          content?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scraped_content_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
