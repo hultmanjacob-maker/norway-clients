@@ -188,7 +188,7 @@ ${content.slice(0, 3000)}`,
         return { ...c, overlap, sameIndustry, text };
       })
       .sort((a, b) => (Number(b.sameIndustry) - Number(a.sameIndustry)) || (b.overlap - a.overlap))
-      .slice(0, 25);
+      .slice(0, 40);
 
     if (pool.length === 0) {
       return json({ success: true, source: { ...source, industry: sourceIndustry }, matches: [] });
@@ -209,7 +209,7 @@ Produkter/tjenester: ${(source.products || []).join(', ')}
 
 Ranger kandidatene under etter hvor like de er referansebedriften. Vekt: nisje/produktområde ca. 40 %, semantisk overlapp i produkter/tjenester ca. 60 % (samme mening teller, ikke bare samme ord).
 
-Returner JSON-array med maks 10 objekter, sortert fallende på score:
+Vær RAUS: inkluder også delvis like bedrifter (tilgrensende nisjer, overlappende kundegrupper eller relaterte produkter). Returner et JSON-array med 8–10 objekter — alltid minst 8 hvis det finnes nok kandidater — sortert fallende på score. Gi realistiske score, men ikke la delvis overlapp synke under ~35 så lenge det finnes en faktisk faglig tilknytning:
 [{"index": <nummeret fra #>, "score": <0-100>, "reasons": ["maks 2 korte begrunnelser"]}]
 
 Begrunnelsene skal være konkrete, f.eks. "Samme nisje: Varmepumper" eller "Lignende produkt: bergvarme". Bruk ALDRI generelle bransjenavn som "Industri" eller "Handel" i begrunnelsene — bruk spesifikk nisje eller produkt.
@@ -223,7 +223,7 @@ ${candidateBlock}`,
     const ranked = parseJson(rankRaw);
     if (!Array.isArray(ranked)) return json({ success: false, error: 'Klarte ikke å rangere bedriftene' });
 
-    const matches = ranked
+    const all = ranked
       .map((r: { index?: number; score?: number; reasons?: string[] }) => {
         const c = pool[Number(r.index)];
         if (!c) return null;
@@ -236,7 +236,11 @@ ${candidateBlock}`,
         };
       })
       .filter(Boolean)
-      .sort((a, b) => (b!.score - a!.score))
+      .sort((a, b) => (b!.score - a!.score)) as { id: string; name: string; url: string; score: number; reasons: string[] }[];
+
+    // Garanter bredden: minst 5 treff når det finnes nok kandidater, ellers alt vi har
+    const strongMatches = all.filter(m => m.score >= 35);
+    const matches = (strongMatches.length >= 5 ? strongMatches : all.slice(0, Math.min(5, all.length)))
       .slice(0, 10);
 
     return json({ success: true, source: { ...source, industry: sourceIndustry }, matches });

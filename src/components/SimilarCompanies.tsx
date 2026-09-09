@@ -34,7 +34,7 @@ export default function SimilarCompanies({ companies, onSelect }: Props) {
     findSimilar(url.trim());
   };
 
-  const strong = (matches || []).filter(m => m.score >= 30);
+  const strong = matches || [];
 
   return (
     <div className="space-y-2">
