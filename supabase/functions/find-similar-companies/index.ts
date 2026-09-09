@@ -35,7 +35,7 @@ async function callAI(apiKey: string, messages: unknown[]) {
   const res = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'google/gemini-3.8-flash', messages }),
+    body: JSON.stringify({ model: 'google/gemini-3.8-flash', messages, reasoning_effort: 'low' }),
   });
   if (!res.ok) {
     const txt = await res.text();
