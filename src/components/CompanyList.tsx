@@ -1,6 +1,7 @@
 import { Company, CompanyLocation } from "@/types/company";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Trash2, MapPin, Pencil, Plus, Copy } from "lucide-react";
+import { normalizeUrls } from "@/lib/url";
 import { toast } from "sonner";
 
 interface CompanyListProps {
