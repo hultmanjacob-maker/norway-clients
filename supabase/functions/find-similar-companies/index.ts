@@ -77,13 +77,35 @@ Deno.serve(async (req) => {
     let formattedUrl = url.trim();
     if (!/^https?:\/\//i.test(formattedUrl)) formattedUrl = `https://${formattedUrl}`;
 
-    // 1) Scrape the pasted URL
-    const scrapeRes = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    const t0 = Date.now();
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    // 1) Scrape the pasted URL — in parallel with fetching candidates from the DB
+    const scrapePromise = fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: { Authorization: `Bearer ${firecrawlKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: formattedUrl, formats: ['markdown'], onlyMainContent: true, timeout: 30000 }),
+      body: JSON.stringify({
+        url: formattedUrl,
+        formats: ['markdown'],
+        onlyMainContent: true,
+        timeout: 12000,
+        maxAge: 604800000,
+      }),
     });
+    const companiesPromise = supabase.from('companies').select('id, name, url, industry_tag');
+    const scrapedPromise = supabase.from('scraped_content').select('company_id, content');
+
+    const [scrapeRes, companiesRes, scrapedRes] = await Promise.all([
+      scrapePromise,
+      companiesPromise,
+      scrapedPromise,
+    ]);
     const scrapeData = await scrapeRes.json();
+    console.log(`scrape+db done in ${Date.now() - t0}ms`);
     if (!scrapeRes.ok) {
       const msg = scrapeRes.status === 408 || scrapeData?.code === 'SCRAPE_TIMEOUT'
         ? 'Nettsiden svarte for sakte. Prøv igjen eller bruk en annen adresse.'
