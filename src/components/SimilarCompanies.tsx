@@ -74,6 +74,17 @@ export default function SimilarCompanies({ companies, onSelect }: Props) {
           <Search className="h-3.5 w-3.5 mr-1" />
           Søk
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={copyUrls}
+          disabled={!hasUrls}
+          title="Kopiera URL:er"
+          className="shrink-0 h-9 w-9 text-[hsl(210,20%,55%)] hover:text-white hover:bg-[hsl(220,38%,20%)] disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[hsl(210,20%,55%)]"
+        >
+          <Copy className="h-4 w-4" />
+        </Button>
       </form>
 
       {loading && (
