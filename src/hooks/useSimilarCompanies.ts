@@ -20,12 +20,18 @@ export function useSimilarCompanies() {
   const [matches, setMatches] = useState<SimilarMatch[] | null>(null);
   const [source, setSource] = useState<SimilarSource | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [stage, setStage] = useState<string>("");
 
   const findSimilar = useCallback(async (url: string) => {
     setLoading(true);
     setError(null);
     setMatches(null);
     setSource(null);
+    setStage("Leser nettsiden...");
+    const timers = [
+      setTimeout(() => setStage("Analyserer innhold..."), 3000),
+      setTimeout(() => setStage("Sammenligner med bedriftene..."), 7000),
+    ];
     try {
       const { data, error: fnError } = await supabase.functions.invoke("find-similar-companies", {
         body: { url },
@@ -43,6 +49,8 @@ export function useSimilarCompanies() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ukjent feil");
     } finally {
+      timers.forEach(clearTimeout);
+      setStage("");
       setLoading(false);
     }
   }, []);
@@ -52,7 +60,8 @@ export function useSimilarCompanies() {
     setMatches(null);
     setSource(null);
     setError(null);
+    setStage("");
   }, []);
 
-  return { loading, matches, source, error, findSimilar, reset };
+  return { loading, matches, source, error, stage, findSimilar, reset };
 }

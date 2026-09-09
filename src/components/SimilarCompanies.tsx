@@ -20,7 +20,7 @@ function scoreStyle(score: number) {
 
 export default function SimilarCompanies({ companies, onSelect }: Props) {
   const [url, setUrl] = useState("");
-  const { loading, matches, source, error, findSimilar, reset } = useSimilarCompanies();
+  const { loading, matches, source, error, stage, findSimilar, reset } = useSimilarCompanies();
 
   useEffect(() => {
     if (!url.trim()) {
@@ -60,7 +60,7 @@ export default function SimilarCompanies({ companies, onSelect }: Props) {
 
       {loading && (
         <div className="space-y-2">
-          <p className="text-xs text-[hsl(210,20%,55%)] animate-pulse">Analyserer bolaget...</p>
+          <p className="text-xs text-[hsl(210,20%,55%)] animate-pulse">{stage || "Analyserer bolaget..."}</p>
           {[0, 1, 2].map(i => (
             <Skeleton key={i} className="h-16 w-full bg-[hsl(220,38%,17%)]" />
           ))}

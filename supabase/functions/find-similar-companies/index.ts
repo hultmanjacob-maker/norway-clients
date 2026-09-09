@@ -35,7 +35,7 @@ async function callAI(apiKey: string, messages: unknown[]) {
   const res = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'google/gemini-3.8-flash', messages }),
+    body: JSON.stringify({ model: 'google/gemini-3.8-flash', messages, reasoning_effort: 'low' }),
   });
   if (!res.ok) {
     const txt = await res.text();
@@ -77,13 +77,35 @@ Deno.serve(async (req) => {
     let formattedUrl = url.trim();
     if (!/^https?:\/\//i.test(formattedUrl)) formattedUrl = `https://${formattedUrl}`;
 
-    // 1) Scrape the pasted URL
-    const scrapeRes = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    const t0 = Date.now();
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    );
+
+    // 1) Scrape the pasted URL — in parallel with fetching candidates from the DB
+    const scrapePromise = fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: { Authorization: `Bearer ${firecrawlKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: formattedUrl, formats: ['markdown'], onlyMainContent: true, timeout: 30000 }),
+      body: JSON.stringify({
+        url: formattedUrl,
+        formats: ['markdown'],
+        onlyMainContent: true,
+        timeout: 12000,
+        maxAge: 604800000,
+      }),
     });
+    const companiesPromise = supabase.from('companies').select('id, name, url, industry_tag');
+    const scrapedPromise = supabase.from('scraped_content').select('company_id, content');
+
+    const [scrapeRes, companiesRes, scrapedRes] = await Promise.all([
+      scrapePromise,
+      companiesPromise,
+      scrapedPromise,
+    ]);
     const scrapeData = await scrapeRes.json();
+    console.log(`scrape+db done in ${Date.now() - t0}ms`);
     if (!scrapeRes.ok) {
       const msg = scrapeRes.status === 408 || scrapeData?.code === 'SCRAPE_TIMEOUT'
         ? 'Nettsiden svarte for sakte. Prøv igjen eller bruk en annen adresse.'
@@ -104,32 +126,24 @@ Deno.serve(async (req) => {
 Kategorier: ${INDUSTRIES.join(', ')}
 
 Innhold:
-${content.slice(0, 5000)}`,
+${content.slice(0, 3000)}`,
       },
     ]);
+    console.log(`extract done in ${Date.now() - t0}ms`);
     const source = parseJson(extractRaw) as { industry?: string; niche?: string; products?: string[] } | null;
     if (!source) return json({ success: false, error: 'Klarte ikke å analysere nettsiden' });
     const sourceIndustry = INDUSTRIES.find(i => (source.industry || '').toLowerCase().includes(i.toLowerCase())) || 'Annet';
 
-    // 3) Fetch candidates
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    );
-
-    const { data: companies, error: cErr } = await supabase
-      .from('companies')
-      .select('id, name, url, industry_tag');
+    // 3) Candidates (already fetched in parallel above)
+    const { data: companies, error: cErr } = companiesRes;
     if (cErr) return json({ success: false, error: cErr.message }, 500);
 
-    const { data: scraped, error: sErr } = await supabase
-      .from('scraped_content')
-      .select('company_id, content');
+    const { data: scraped, error: sErr } = scrapedRes;
     if (sErr) return json({ success: false, error: sErr.message }, 500);
 
     const contentById = new Map<string, string>();
     for (const row of scraped || []) {
-      if (!contentById.has(row.company_id)) contentById.set(row.company_id, row.content || '');
+      if (!contentById.has(row.company_id)) contentById.set(row.company_id, (row.content || '').slice(0, 1200));
     }
 
     const keywords = [sourceIndustry, source.niche || '', ...(source.products || [])]
@@ -150,7 +164,7 @@ ${content.slice(0, 5000)}`,
         return { ...c, overlap, sameIndustry, text };
       })
       .sort((a, b) => (Number(b.sameIndustry) - Number(a.sameIndustry)) || (b.overlap - a.overlap))
-      .slice(0, 60);
+      .slice(0, 25);
 
     if (pool.length === 0) {
       return json({ success: true, source: { ...source, industry: sourceIndustry }, matches: [] });
@@ -158,7 +172,7 @@ ${content.slice(0, 5000)}`,
 
     // 4) Rank semantically
     const candidateBlock = pool
-      .map((c, i) => `#${i} ${c.name}\n${c.text.slice(0, 600).replace(/\s+/g, ' ')}`)
+      .map((c, i) => `#${i} ${c.name}\n${c.text.slice(0, 350).replace(/\s+/g, ' ')}`)
       .join('\n---\n');
 
     const rankRaw = await callAI(aiKey, [
@@ -180,6 +194,7 @@ Kandidater:
 ${candidateBlock}`,
       },
     ]);
+    console.log(`rank done in ${Date.now() - t0}ms`);
 
     const ranked = parseJson(rankRaw);
     if (!Array.isArray(ranked)) return json({ success: false, error: 'Klarte ikke å rangere bedriftene' });
