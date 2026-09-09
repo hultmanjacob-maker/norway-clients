@@ -85,25 +85,49 @@ Deno.serve(async (req) => {
     );
 
     // 1) Scrape the pasted URL — in parallel with fetching candidates from the DB
-    const scrapePromise = fetch('https://api.firecrawl.dev/v1/scrape', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${firecrawlKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        url: formattedUrl,
-        formats: ['markdown'],
-        onlyMainContent: true,
-        timeout: 12000,
-        maxAge: 604800000,
-      }),
-    });
-    const companiesPromise = supabase.from('companies').select('id, name, url, industry_tag');
-    const scrapedPromise = supabase.from('scraped_content').select('company_id, content');
+    const scrapePromise = (async () => {
+      const s = Date.now();
+      const res = await fetch('https://api.firecrawl.dev/v1/scrape', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${firecrawlKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: formattedUrl,
+          formats: ['markdown'],
+          onlyMainContent: true,
+          timeout: 12000,
+          maxAge: 604800000,
+        }),
+        signal: AbortSignal.timeout(20000),
+      });
+      console.log(`firecrawl ${Date.now() - s}ms`);
+      return res;
+    })();
+    const companiesPromise = (async () => {
+      const s = Date.now();
+      const r = await supabase.from('companies').select('id, name, url, industry_tag');
+      console.log(`companies ${Date.now() - s}ms`);
+      return r;
+    })();
+    const scrapedPromise = (async () => {
+      const s = Date.now();
+      const r = await supabase.from('scraped_content_preview').select('company_id, content');
+      console.log(`scraped_preview ${Date.now() - s}ms`);
+      return r;
+    })();
 
-    const [scrapeRes, companiesRes, scrapedRes] = await Promise.all([
-      scrapePromise,
-      companiesPromise,
-      scrapedPromise,
-    ]);
+    let scrapeRes: Response;
+    let companiesRes: Awaited<typeof companiesPromise>;
+    let scrapedRes: Awaited<typeof scrapedPromise>;
+    try {
+      [scrapeRes, companiesRes, scrapedRes] = await Promise.all([
+        scrapePromise,
+        companiesPromise,
+        scrapedPromise,
+      ]);
+    } catch (e) {
+      console.error('parallel fetch failed', e);
+      return json({ success: false, error: 'Nettsiden svarte for sakte. Prøv igjen eller bruk en annen adresse.' });
+    }
     const scrapeData = await scrapeRes.json();
     console.log(`scrape+db done in ${Date.now() - t0}ms`);
     if (!scrapeRes.ok) {
