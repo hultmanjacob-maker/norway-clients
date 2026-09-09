@@ -38,6 +38,22 @@ export default function SimilarCompanies({ companies, onSelect }: Props) {
 
   const strong = matches || [];
 
+  const copyUrls = async () => {
+    const urls = normalizeUrls(strong.map(m => m.url));
+    if (urls.length === 0) {
+      toast.error("Inga URL:er att kopiera");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(urls.join("\n"));
+      toast.success(`${urls.length} URL:er kopierade`);
+    } catch {
+      toast.error("Kunde inte kopiera");
+    }
+  };
+
+  const hasUrls = strong.some(m => m.url && m.url.trim());
+
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-wider text-[hsl(210,20%,55%)] flex items-center gap-1.5">
